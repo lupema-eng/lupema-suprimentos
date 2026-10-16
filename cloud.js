@@ -154,6 +154,13 @@
     get user() { return members.find(row => row.id === session?.user?.id); },
     get members() { return JSON.parse(JSON.stringify(members)); },
     get role() { return cloud.user?.role; },
+    get prospectRecords() {
+      return [...store.rows.values()].filter(row=>row.colecao==='lupemaLeads').map(row=>({
+        id:row.id,name:row.dados?.name||row.dados?.tradeName||'Fornecedor sem nome',
+        status:row.excluido?'Excluído':row.dados?.status||'Prospectado',deleted:!!row.excluido,
+        origin:row.dados?.registrationOrigin||'unknown',createdBy:row.criado_por||null,createdAt:row.criado_em||null
+      }));
+    },
     read(collection, fallback = []) { return store.get(collection, fallback); },
     write(collection, value, options) { return writeMany({[collection]: value}, options); },
     writeMany, refresh, lock: (key, id) => store.lock(key, id), unlock: (key, id) => store.unlock(key, id),

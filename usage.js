@@ -16,20 +16,29 @@
     date.setUTCDate(date.getUTCDate() - (date.getUTCDay() + 6) % 7);
     return date.toISOString().slice(0, 10);
   }
+  function prospectStats(records, members, filter) {
+    const profiles=new Map(members.map(u=>[u.id,u]));
+    return [...new Map((records||[]).filter(r=>r?.id).map(r=>[r.id,r])).values()].filter(r=>{
+      const date=day(r.createdAt),person=profiles.get(r.createdBy);
+      return date && date>=filter.start && date<=filter.end && (!filter.userId || r.createdBy===filter.userId) && (!filter.dept || person?.dept===filter.dept) && (!filter.work || person?.work===filter.work);
+    }).map(r=>({...r,person:profiles.get(r.createdBy)||{id:r.createdBy,name:'Responsável não disponível',dept:'Não informado',work:''}}));
+  }
   function summarize(data, members, filter) {
     const users = members.filter(u => (!filter.dept || u.dept === filter.dept) && (!filter.work || u.work === filter.work) && (!filter.userId || u.id === filter.userId));
     const ids = new Set(users.map(u => u.id));
     const within = r => { const d = day(r.at || r.createdAt || r.date); return ids.has(r.userId) && d && d >= filter.start && d <= filter.end; };
     const unique = rows => [...new Map((rows || []).filter(r => r && r.id).map(r => [r.id, r])).values()];
     const accesses = unique(data.accesses).filter(within), uses = unique(data.uses).filter(within), feedbacks = unique(data.feedbacks).filter(within);
-    const all = [...accesses, ...uses, ...feedbacks];
+    const prospectRows=prospectStats(data.prospects,members,filter);
+    const prospectActivities=prospectRows.filter(r=>ids.has(r.createdBy)).map(r=>({id:r.id,userId:r.createdBy,at:r.createdAt}));
+    const all = [...accesses, ...uses, ...feedbacks, ...prospectActivities];
     const active = new Set(all.map(r => r.userId));
     const rows = users.map(user => {
       const events = all.filter(r => r.userId === user.id);
       const a = accesses.filter(r => r.userId === user.id);
       return {...user, active: events.length > 0, recurring: new Set(events.map(r => week(r.at || r.createdAt || r.date))).size >= 2,
         visits: a.filter(r => r.kind !== 'search').length, searches: a.filter(r => r.kind === 'search').length,
-        uses: uses.filter(r => r.userId === user.id).length, feedbacks: feedbacks.filter(r => r.userId === user.id).length,
+        prospects:prospectRows.filter(r=>r.createdBy===user.id).length, uses: uses.filter(r => r.userId === user.id).length, feedbacks: feedbacks.filter(r => r.userId === user.id).length,
         last: events.map(r => r.at || r.createdAt || r.date).sort().at(-1) || ''};
     });
     const breakdown = field => [...new Set(users.map(u => u[field] || 'Não informado'))].sort().map(label => {
@@ -53,12 +62,13 @@
     all.forEach(r => buckets.get(key(r.at || r.createdAt || r.date))?.add(r.userId));
     const trend = [...buckets].map(([label, people]) => ({label, count: people.size}));
     const events = [
+      ...prospectRows.map(r=>({id:'prospects/'+r.id,userId:r.createdBy,at:r.createdAt,view:'leads',kind:'prospect',record:r,person:r.person})),
       ...accesses.map(r=>({id:'accesses/'+r.id,userId:r.userId,at:r.at,view:r.view,kind:r.kind==='search'?'search':r.view==='entrada'?'opening':'navigation',record:r})),
       ...uses.map(r=>({id:'uses/'+r.id,userId:r.userId,at:r.createdAt||r.date,view:'usage',kind:'use',record:r})),
       ...feedbacks.map(r=>({id:'feedbacks/'+r.id,userId:r.userId,at:r.at,view:r.panel,kind:'feedback',record:r}))
     ].sort((a,b)=>String(b.at).localeCompare(String(a.at)));
-    const firstRecorded = [...unique(data.accesses),...unique(data.uses),...unique(data.feedbacks)].filter(r=>ids.has(r.userId)).map(r=>day(r.at||r.createdAt||r.date)).filter(Boolean).sort()[0] || '';
-    return {events, firstRecorded, trend, grain, rows, enabled: users.length, active: active.size, adoption: users.length ? active.size / users.length * 100 : null,
+    const firstRecorded = [...unique(data.accesses),...unique(data.uses),...unique(data.feedbacks),...prospectActivities].filter(r=>ids.has(r.userId)).map(r=>day(r.at||r.createdAt||r.date)).filter(Boolean).sort()[0] || '';
+    return {prospectRows, prospectCount:prospectRows.length, events, firstRecorded, trend, grain, rows, enabled: users.length, active: active.size, adoption: users.length ? active.size / users.length * 100 : null,
       recurring: rows.filter(u => u.recurring).length, visits: accesses.filter(r => r.kind !== 'search').length,
       searches: accesses.filter(r => r.kind === 'search').length, uses: uses.length, feedbacks: feedbacks.length,
       departments: breakdown('dept'), works: breakdown('work'),
@@ -73,16 +83,16 @@
   function details(report, query = {}) {
     const people = new Map(report.rows.map(u=>[u.id,u]));
     const person = id => people.get(id);
-    const matchUser = u => u && (!query.userId || u.id===query.userId) && (!query.dept || (u.dept||'Não informado')===query.dept) && (!query.work || (u.work||'Não informado')===query.work);
-    const events = report.events.filter(e => matchUser(person(e.userId)) &&
+    const matchUser = u => u && (query.userId===undefined || u.id===query.userId) && (!query.dept || (u.dept||'Não informado')===query.dept) && (!query.work || (u.work||'Não informado')===query.work);
+    const events = report.events.filter(e => matchUser(e.person||person(e.userId)) &&
       (!query.kind || e.kind===query.kind || query.kind==='consultation' && ['opening','navigation','search'].includes(e.kind)) &&
       (!query.view || e.view===query.view) && (!query.stage || e.record.stage===query.stage) &&
       (!query.bucket || day(e.at).startsWith(query.bucket)));
-    if (query.mode !== 'people') return events.map(e=>({...e,person:person(e.userId)}));
+    if (query.mode !== 'people') return events.map(e=>({...e,person:e.person||person(e.userId)}));
     return report.rows.filter(u=>matchUser(u) && (query.active===undefined || u.active===query.active) &&
       (!query.recurring || u.recurring) && (!query.bucket || events.some(e=>e.userId===u.id)));
   }
-  return {day, summarize, csv, details};
+  return {day, summarize, csv, details, prospectStats};
 });
 (function () {
   'use strict';
@@ -165,7 +175,7 @@
     $('dashboardCsv').disabled = !valid;
     $('dashboardPrint').disabled = !valid;
     if (!valid) { report = null; closeDetail(); return; }
-    report = LupemaMetrics.summarize(data, LupemaCloud.members, f);
+    report = LupemaMetrics.summarize({...data,prospects:LupemaCloud.prospectRecords}, LupemaCloud.members, f);
     const pct = v => v === null ? '—' : v.toLocaleString('pt-BR', {maximumFractionDigits:1}) + '%';
     $('metricAdoption').textContent = pct(report.adoption);
     $('metricActive').textContent = report.active + ' de ' + report.enabled + ' autorizados';
@@ -182,7 +192,7 @@
   }
   let detailState = null, detailStack = [], detailPage = 0;
   const detailLimit = 100;
-  const actionNames = {opening:'Abriu a base (nova abertura ou sessão retomada)',navigation:'Abriu um painel',search:'Realizou uma ação de pesquisa',use:'Registrou uma utilização declarada',feedback:'Registrou um feedback'};
+  const actionNames = {prospect:'Incluiu um fornecedor prospectado',opening:'Abriu a base (nova abertura ou sessão retomada)',navigation:'Abriu um painel',search:'Realizou uma ação de pesquisa',use:'Registrou uma utilização declarada',feedback:'Registrou um feedback'};
   function drillButton(value, query, title) {
     if (!query) return '<strong>'+esc(value)+'</strong>';
     return '<button type="button" class="exec-drill" data-exec-query="'+esc(JSON.stringify(query))+'" data-exec-title="'+esc(title||'Detalhamento')+'" title="Clique para ver quem e quais registros compõem este número">'+esc(value)+'<span aria-hidden="true"> ↗</span></button>';
@@ -207,7 +217,7 @@
     $('execDetailHead').innerHTML=people?'<tr><th>Nome</th><th>Setor</th><th>Obra</th><th>Registros que explicam a participação</th></tr>':'<tr><th>Data e horário</th><th>Nome</th><th>Setor</th><th>O que fez</th><th>Painel / referência</th></tr>';
     $('execDetailRows').innerHTML=page.map(row=>{
       if (people) { const next={...query,mode:'events',userId:row.id}; delete next.active; delete next.recurring; const count=LupemaMetrics.details(report,next).length; return '<tr><td>'+esc(row.name)+'</td><td>'+esc(row.dept||'Não informado')+'</td><td>'+esc(row.work||'Não informada')+'</td><td>'+drillButton(count+' registros',next,'Registros de '+row.name+' · '+(row.dept||'Não informado'))+'</td></tr>'; }
-      const ref=row.kind==='use' ? (row.record.supplier||'Fornecedor não informado')+' · '+({cotacao:'Cotação',pedido:'Pedido',contrato:'Contrato'}[row.record.stage]||row.record.stage||'')+' · Referência: '+(row.record.number||'Não informada') : panelNames[row.view]||row.view||'Não informado';
+      const ref=row.kind==='prospect' ? row.record.name+' · '+row.record.status+' · '+(row.record.origin==='platform-form'?'Cadastro pelo formulário':'Origem anterior não identificada; pode incluir importação')+' · ID: '+row.record.id : row.kind==='use' ? (row.record.supplier||'Fornecedor não informado')+' · '+({cotacao:'Cotação',pedido:'Pedido',contrato:'Contrato'}[row.record.stage]||row.record.stage||'')+' · Referência: '+(row.record.number||'Não informada') : panelNames[row.view]||row.view||'Não informado';
       return '<tr><td>'+esc(stamp(row.at))+'</td><td>'+esc(row.person.name)+'</td><td>'+esc(row.person.dept||'Não informado')+'</td><td>'+esc(actionNames[row.kind]||row.kind)+'</td><td>'+esc(ref)+'</td></tr>';
     }).join('') || '<tr><td colspan="5">Nenhum registro neste recorte. Isso não indica presença online nem comprova ausência de uso antes do início da coleta.</td></tr>';
     $('execDetailPage').textContent=rows.length ? (detailPage*detailLimit+1)+'–'+Math.min((detailPage+1)*detailLimit,rows.length)+' de '+rows.length : '0 registros';
@@ -226,7 +236,7 @@
   $('execDetailBack').addEventListener('click',()=>{detailState=detailStack.pop();detailPage=0;renderDetail();});
   $('execDetailPrev').addEventListener('click',()=>{detailPage--;renderDetail();});
   $('execDetailNext').addEventListener('click',()=>{detailPage++;renderDetail();});
-  const cardQueries={execActive:{mode:'people',active:true},execAdoption:{mode:'people'},execRecurring:{mode:'people',recurring:true},execSearches:{kind:'search'},execUses:{kind:'use'}};
+  const cardQueries={execProspects:{kind:'prospect'},execActive:{mode:'people',active:true},execAdoption:{mode:'people'},execRecurring:{mode:'people',recurring:true},execSearches:{kind:'search'},execUses:{kind:'use'}};
   for (const [id,query] of Object.entries(cardQueries)) $(id).addEventListener('click',()=>openDetail(query,$(id).closest('article').querySelector('span').textContent));
   function syncDashboardFilters() {
     for (const suffix of ['Start','End','Dept','Work','User']) {
@@ -254,6 +264,11 @@
     $('execRecurring').textContent=report.recurring;
     $('execSearches').textContent=report.searches;
     $('execUses').textContent=report.uses;
+    $('execProspects').textContent=report.prospectCount;
+    const authors=[...new Set(report.prospectRows.map(r=>r.createdBy))].map(id=>{const rows=report.prospectRows.filter(r=>r.createdBy===id),person=rows[0].person;return {label:person.name+' · '+(person.dept||'Setor não informado'),count:rows.length,query:{kind:'prospect',userId:id},note:'Responsável pela inclusão na plataforma'};});
+    bars('execProspectAuthors',authors);
+    $('execProspectRows').innerHTML=report.prospectRows.slice().sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).map(r=>'<tr><td>'+esc(r.name)+'</td><td>'+esc(r.person.name)+'</td><td>'+esc(r.person.dept||'Não informado')+'</td><td>'+esc(stamp(r.createdAt))+'</td><td>'+esc(r.status)+'</td><td>'+esc(r.origin==='platform-form'?'Formulário da plataforma':'Não identificada; pode incluir importação')+'</td></tr>').join('')||'<tr><td colspan="6">Nenhum fornecedor prospectado incluído neste recorte.</td></tr>';
+
     $('execBase').textContent=report.enabled+' colaboradores atualmente autorizados no recorte';
     const inactive=report.enabled-report.active, percentage=report.adoption||0;
     $('execParticipation').innerHTML=report.enabled?'<div class="exec-participation"><div class="exec-donut" role="group" aria-label="'+report.active+' pessoas utilizaram a base entre '+report.enabled+' autorizadas" style="background:conic-gradient(#147653 0% '+percentage+'%,#f5b857 '+percentage+'% 100%)"><div>'+drillButton(pct(report.adoption),{mode:'people'},'Pessoas autorizadas e participação')+'<span>usaram a base</span></div></div><div><p>'+drillButton(report.active+' pessoas utilizaram',{mode:'people',active:true},'Quem utilizou a base')+'</p><p>'+drillButton(inactive+' sem registro de uso',{mode:'people',active:false},'Pessoas sem registro de uso no período')+'</p></div></div><div class="exec-roster">'+report.departments.map(d=>'<div><b>'+esc(d.label)+'</b><p>'+d.active+' de '+d.enabled+' pessoas utilizaram a base</p>'+report.rows.filter(u=>(u.dept||'Não informado')===d.label).map(u=>drillButton(u.name+' · '+(u.active?'utilizou':'sem registro'),{userId:u.id},'Registros de '+u.name+' · '+d.label)).join(' ')+'</div>').join('')+'</div>':'<p class="exec-empty">Nenhum colaborador neste recorte.</p>';
@@ -280,10 +295,17 @@
     const table='<div class="table-wrap"><table class="table"><thead><tr><th>Data / período</th><th>Setor</th><th>Pessoas que utilizaram</th><th>Nomes</th></tr></thead><tbody>'+trendRows.map(r=>'<tr><td>'+esc(formatBucket(r.label))+'</td><td>'+esc(r.dept)+'</td><td>'+drillButton(r.count+' pessoas',{mode:'people',dept:r.dept,bucket:r.label},r.dept+' · '+formatBucket(r.label))+'</td><td>'+r.people.map(u=>drillButton(u.name,{userId:u.id,bucket:r.label},u.name+' · '+formatBucket(r.label))).join(' ')+'</td></tr>').join('')+'</tbody></table></div>';
     $('execTrend').innerHTML=trendRows.length ? legend+'<svg viewBox="0 0 '+w+' '+h+'" role="group" aria-label="Pessoas que utilizaram a base por setor e por '+report.grain+'" class="exec-line"><title>Pessoas que utilizaram a base por setor</title><text x="'+left+'" y="14">Pessoas</text>'+[0,high].map(n=>'<line x1="'+left+'" x2="'+(w-18)+'" y1="'+y(n)+'" y2="'+y(n)+'" stroke="#dce5df"/><text x="'+(left-8)+'" y="'+(y(n)+4)+'" text-anchor="end">'+n+'</text>').join('')+paths+ticks.map(i=>'<text x="'+x(i)+'" y="218" text-anchor="'+(i===0?'start':i===points.length-1?'end':'middle')+'">'+esc(formatBucket(points[i].label))+'</text>').join('')+'</svg>'+table+'<p class="small muted">A tabela mostra os períodos com registros. Primeiro registro disponível para os usuários deste recorte: '+esc(formatBucket(report.firstRecorded))+'. Antes disso não há histórico suficiente para afirmar que ninguém utilizou a base.</p>' : '<p class="exec-empty">Não há registros de utilização neste período para os usuários selecionados. Não é possível apresentar uma evolução sem registros.</p>';
     if (detailState && $('execDetail').open) renderDetail();
-    $('execSummary').textContent=report.enabled ? report.active+' de '+report.enabled+' colaboradores tiveram atividade. '+report.recurring+' utilizaram a base em pelo menos duas semanas distintas. Foram registradas '+report.searches+' ações de pesquisa e '+report.uses+' utilizações declaradas.' : 'Nenhum usuário autorizado corresponde aos filtros selecionados.';
+    $('execSummary').textContent=report.enabled ? report.active+' de '+report.enabled+' colaboradores tiveram atividade. '+report.recurring+' utilizaram a base em pelo menos duas semanas distintas. Foram registradas '+report.searches+' ações de pesquisa e '+report.uses+' utilizações declaradas e '+report.prospectCount+' novos cadastros de fornecedores prospectados.' : 'Nenhum usuário autorizado corresponde aos filtros selecionados.';
     $('execUpdated').textContent='Quadro calculado às '+new Date().toLocaleTimeString('pt-BR')+' · Dados compartilhados carregados nesta sessão';
   }
   for (const suffix of ['Start','End','Dept','Work','User']) $('dashboard'+suffix).addEventListener('change',()=>{ $('metric'+suffix).value=$('dashboard'+suffix).value; closeDetail(); renderMetrics(); });
+  $('execProspectCsv').addEventListener('click',()=>{
+    if(!report)return;
+    const rows=[['Fornecedor prospectado','Responsável pela inclusão','Setor','Data de inclusão (Brasília)','Situação','Origem','ID']];
+    report.prospectRows.forEach(r=>rows.push([r.name,r.person.name,r.person.dept,stamp(r.createdAt),r.status,r.origin==='platform-form'?'Formulário da plataforma':'Não identificada; pode incluir importação',r.id]));
+    const url=URL.createObjectURL(new Blob([LupemaMetrics.csv(rows)],{type:'text/csv;charset=utf-8'}));
+    const a=document.createElement('a');a.href=url;a.download='LUPEMA_NOVOS_PROSPECTADOS_'+metricFilter().start+'_'+metricFilter().end+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  });
   $('dashboardCsv').addEventListener('click',()=>$('metricCsv').click());
   $('dashboardPrint').addEventListener('click',()=>window.print());
   const end = today(), start = new Date(end + 'T12:00:00Z'); start.setUTCDate(start.getUTCDate()-29);
@@ -292,8 +314,8 @@
   $('metricCsv').addEventListener('click', () => {
     if (!report) return;
     const f = metricFilter();
-    const rows = [['Início','Fim','Nome','Setor','Obra','Ativo no período','Recorrente em 2 semanas','Entradas e navegações','Pesquisas','Utilizações declaradas','Feedbacks','Última atividade no período']];
-    report.rows.forEach(u => rows.push([f.start,f.end,u.name,u.dept,u.work,u.active?'Sim':'Não',u.recurring?'Sim':'Não',u.visits,u.searches,u.uses,u.feedbacks,u.last]));
+    const rows = [['Início','Fim','Nome','Setor','Obra','Ativo no período','Recorrente em 2 semanas','Entradas e navegações','Pesquisas','Utilizações declaradas','Feedbacks','Novos fornecedores prospectados','Última atividade no período']];
+    report.rows.forEach(u => rows.push([f.start,f.end,u.name,u.dept,u.work,u.active?'Sim':'Não',u.recurring?'Sim':'Não',u.visits,u.searches,u.uses,u.feedbacks,u.prospects,u.last]));
     const url = URL.createObjectURL(new Blob([LupemaMetrics.csv(rows)],{type:'text/csv;charset=utf-8'}));
     const a = document.createElement('a'); a.href=url; a.download='LUPEMA_INDICADORES_'+f.start+'_'+f.end+'.csv'; a.click();
     setTimeout(()=>URL.revokeObjectURL(url),1000);
