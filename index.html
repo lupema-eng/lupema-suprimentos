@@ -65,7 +65,7 @@ main{display:flex;flex-direction:column;min-height:100vh}main>.content{width:100
         <button class="nav-btn" data-view="shortlist"><span class="nav-icon">★</span><span>Grupos de fornecedores</span></button>
         <button class="nav-btn" data-view="leads"><span class="nav-icon">＋</span><span>Novos fornecedores</span></button>
         <button class="nav-btn" data-view="needs"><span class="nav-icon">◇</span><span>Necessidades</span></button>
-        <button class="nav-btn" data-view="usage"><span class="nav-icon">▥</span><span>Utilização e produtividade</span></button>
+        <button class="nav-btn" data-view="usage"><span class="nav-icon">▥</span><span>Indicadores e utilização</span></button>
       </nav>
       <div class="side-foot">Base corporativa consolidada<br><span id="buildDate"></span><div class="lupema-credit-sidebar">Base / Sistema desenvolvido pela Técnica Gabrielle Moreti Barbosa.</div></div>
     </aside>
@@ -327,14 +327,33 @@ main{display:flex;flex-direction:column;min-height:100vh}main>.content{width:100
         </section>
 
         <section class="view" id="view-usage">
-          <div class="page-head"><div><h1>Utilização e produtividade</h1><p>Registro compartilhado de acessos, feedbacks e utilização de fornecedores prospectados no Sienge.</p></div></div>
-          <div class="catalog-note warn"><strong>Controle manual — Etapa 1:</strong> os acessos são contabilizados somente na base compartilhada e quando o usuário está identificado. Cotação, pedido e contrato são declarações dos usuários, não confirmação via Sienge. Login individual e dados compartilhados entre os colaboradores autorizados.</div>
+          <div class="page-head"><div><h1>Indicadores e utilização</h1><p>Registro compartilhado de acessos, feedbacks e utilização de fornecedores prospectados no Sienge.</p></div></div>
+          <div class="catalog-note warn"><strong>Uso identificado:</strong> entradas, navegações e ações de pesquisa são contabilizadas automaticamente para usuários autenticados. Cotação, pedido e contrato são declarações dos usuários, não confirmação via Sienge. Login individual e dados compartilhados entre os colaboradores autorizados.</div>
+          <div class="research-form" style="margin:14px 0">
+            <h2>Indicadores de adoção do projeto</h2>
+            <p class="small muted">Acompanhamento compartilhado com a equipe. Registramos entrada, navegação e ações de pesquisa identificadas, sem guardar o texto pesquisado. Não medimos tempo de trabalho nem presença online. Pesquisas passam a ser registradas nesta versão; o histórico anterior contém entradas e navegações.</p>
+            <div class="form-grid">
+              <div class="field"><label for="metricStart">Início</label><input class="input" type="date" id="metricStart"></div>
+              <div class="field"><label for="metricEnd">Fim</label><input class="input" type="date" id="metricEnd"></div>
+              <div class="field"><label for="metricDept">Setor</label><select class="select" id="metricDept"><option value="">Todos</option></select></div>
+              <div class="field"><label for="metricWork">Obra / unidade</label><select class="select" id="metricWork"><option value="">Todos</option></select></div>
+            </div><p role="alert" id="metricError"></p><button class="btn" id="metricCsv" type="button">Exportar indicadores para Excel (CSV)</button>
+            <div id="metricReport">
+              <div class="metrics" style="margin:14px 0"><div class="metric"><b id="metricAdoption">—</b><span>Adesão no período</span><small id="metricActive"></small></div><div class="metric"><b id="metricRecurring">0</b><span>Usuários em duas ou mais semanas</span></div><div class="metric"><b id="metricSearches">0</b><span>Ações de pesquisa</span></div><div class="metric"><b id="metricContributions">0</b><span>Utilizações declaradas + feedbacks</span></div></div>
+              <p class="small muted">Adesão = usuários com atividade no período ÷ usuários atualmente autorizados no recorte. Recorrência considera semanas de segunda a domingo, no horário de Brasília. Contribuições deste quadro abrangem somente utilizações declaradas e feedbacks. Não há metas definidas nem cálculo de economia financeira.</p>
+              <div class="table-wrap"><table class="table"><thead><tr><th>Usuário / setor / obra</th><th>Ativo no período</th><th>Entradas / navegações</th><th>Pesquisas</th><th>Utilizações / feedbacks</th><th>Última atividade no período</th></tr></thead><tbody id="metricUsers"></tbody></table></div>
+              <h3>Adesão por setor</h3><div class="table-wrap"><table class="table"><thead><tr><th>Setor</th><th>Ativos / autorizados</th><th>Adesão</th></tr></thead><tbody id="metricDepartments"></tbody></table></div>
+              <h3>Adesão por obra</h3><div class="table-wrap"><table class="table"><thead><tr><th>Obra</th><th>Ativos / autorizados</th><th>Adesão</th></tr></thead><tbody id="metricWorks"></tbody></table></div>
+              <h3>Eventos por painel</h3><div class="table-wrap"><table class="table"><thead><tr><th>Painel</th><th>Navegações e pesquisas</th></tr></thead><tbody id="metricPanels"></tbody></table></div>
+              <h3>Aplicação declarada na operação</h3><p id="metricStages"></p><p>Utilizações com obra e número de referência preenchidos: <strong id="metricEvidence">—</strong></p><p class="small muted">Preenchimento não comprova validação no Sienge. Os registros podem se referir ao mesmo processo; as etapas não representam conversão de um funil.</p>
+            </div>
+          </div>
           <div class="research-form" style="margin:14px 0">
             <h3 class="section-title">Identificação do usuário</h3>
             <div class="form-grid"><div class="field"><label>Usuário em operação</label><select class="select" id="usageUser"><option value="">Selecione seu usuário</option></select></div><div class="field"><label>Nome do usuário autenticado</label><input class="input" id="usageNewName" placeholder="Nome do colaborador"></div><div class="field"><label>Setor</label><input class="input" id="usageNewDept" placeholder="Ex.: Suprimentos, Engenharia, Orçamento"></div><div class="field"><label>Obra / unidade (opcional)</label><input class="input" id="usageNewWork" placeholder="Ex.: HORIZON"></div></div>
             <div class="form-grid" style="margin-top:10px"><div class="field"><label>E-mail corporativo</label><input class="input" id="usageNewEmail" type="email" maxlength="160" autocomplete="email" placeholder="nome@empresa.com.br"></div><div class="field"><label>Telefone / WhatsApp (com DDD)</label><input class="input" id="usageNewPhone" type="tel" maxlength="22" autocomplete="tel" placeholder="(17) 99999-9999"></div></div><button class="btn primary" id="usageAddUser" type="button">Acessos gerenciados pelo responsável</button> <button class="btn" id="usageEditUser" type="button">Atualizar meu contato</button> <span class="small muted" id="usageCurrentLabel">Nenhum usuário identificado</span>
           </div>
-          <div class="metrics"><div class="metric"><b id="usageUsersCount">0</b><span>Usuários autorizados</span></div><div class="metric"><b id="usageAccessCount">0</b><span>Acessos registrados</span></div><div class="metric"><b id="usageUseCount">0</b><span>Registros de utilização</span></div><div class="metric"><b id="usageFeedbackCount">0</b><span>Feedbacks recebidos</span></div></div>
+          <div class="metrics"><div class="metric"><b id="usageUsersCount">0</b><span>Usuários autorizados</span></div><div class="metric"><b id="usageAccessCount">0</b><span>Eventos de uso acumulados</span></div><div class="metric"><b id="usageUseCount">0</b><span>Registros de utilização</span></div><div class="metric"><b id="usageFeedbackCount">0</b><span>Feedbacks recebidos</span></div></div>
           <div class="research-form" style="margin:15px 0"><h3 class="section-title">Registrar utilização no Sienge (informação declarada)</h3>
             <form id="usageUseForm"><div class="form-grid">
               <div class="field"><label>Fornecedor prospectado *</label><select class="select" id="usageSupplier" required><option value="">Selecione um prospectado</option></select></div>
@@ -353,7 +372,7 @@ main{display:flex;flex-direction:column;min-height:100vh}main>.content{width:100
               <div class="field"><label>Prioridade</label><select class="select" id="usageFeedbackPriority"><option>Normal</option><option>Alta</option><option>Crítica</option></select></div>
               <div class="field full"><label>Relato *</label><textarea class="textarea" id="usageFeedbackText" required placeholder="O que funcionou, qual dificuldade encontrou e o que precisa melhorar?"></textarea></div></div>
               <button class="btn primary" type="submit">Salvar feedback para a equipe</button></form></div>
-          <div class="results" style="margin:15px 0"><div class="results-head"><strong>Produtividade por usuário</strong><span class="small muted">Acessos registrados por navegação identificada, não tempo efetivo de trabalho</span></div><div class="table-wrap"><table class="table"><thead><tr><th>Usuário / setor</th><th>Acessos</th><th>Registros Sienge</th><th>Feedbacks</th><th>Último acesso</th></tr></thead><tbody id="usageUserRows"></tbody></table></div></div>
+          <div class="results" style="margin:15px 0"><div class="results-head"><strong>Histórico acumulado por usuário</strong><span class="small muted">Histórico acumulado de entradas, navegações e ações de pesquisa; não mede tempo de trabalho</span></div><div class="table-wrap"><table class="table"><thead><tr><th>Usuário / setor</th><th>Eventos de uso</th><th>Registros Sienge</th><th>Feedbacks</th><th>Último acesso</th></tr></thead><tbody id="usageUserRows"></tbody></table></div></div>
           <div class="results" style="margin:15px 0"><div class="results-head"><strong>Histórico de utilização declarada</strong></div><div class="table-wrap"><table class="table"><thead><tr><th>Data / responsável</th><th>Fornecedor</th><th>Etapa / situação</th><th>Obra / número</th><th>Ação</th></tr></thead><tbody id="usageUseRows"></tbody></table></div></div>
           <div class="results" style="margin:15px 0"><div class="results-head"><strong>Feedbacks registrados</strong></div><div class="table-wrap"><table class="table"><thead><tr><th>Data / usuário</th><th>Painel / tipo</th><th>Nota</th><th>Relato</th><th>Ação</th></tr></thead><tbody id="usageFeedbackRows"></tbody></table></div></div>
           <div class="research-form" style="margin:15px 0"><h3 class="section-title">Portabilidade e consolidação</h3><p class="small muted">Exporte os registros compartilhados da equipe para backup e análise. Importações unem registros por identificador, sem apagar os existentes, respeitando seu perfil de acesso.</p><button class="btn" type="button" id="usageExport">⇩ Exportar controle JSON</button> <label class="btn" for="usageImport" style="display:inline-block;cursor:pointer">Importar controle JSON</label><input type="file" id="usageImport" accept=".json,application/json" hidden></div>
@@ -397,8 +416,8 @@ main{display:flex;flex-direction:column;min-height:100vh}main>.content{width:100
 
 
 
-<script src="./config.js?v=20261015-acesso-2"></script>
-<script src="./sync-core.js?v=20261015-acesso-2"></script>
-<script src="./cloud.js?v=20261015-acesso-2"></script>
+<script src="./config.js?v=20261016-indicadores-1"></script>
+<script src="./sync-core.js?v=20261016-indicadores-1"></script>
+<script src="./cloud.js?v=20261016-indicadores-1"></script>
 </body>
 </html>
