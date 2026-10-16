@@ -52,7 +52,13 @@
     }
     all.forEach(r => buckets.get(key(r.at || r.createdAt || r.date))?.add(r.userId));
     const trend = [...buckets].map(([label, people]) => ({label, count: people.size}));
-    return {trend, grain, rows, enabled: users.length, active: active.size, adoption: users.length ? active.size / users.length * 100 : null,
+    const events = [
+      ...accesses.map(r=>({id:'accesses/'+r.id,userId:r.userId,at:r.at,view:r.view,kind:r.kind==='search'?'search':r.view==='entrada'?'opening':'navigation',record:r})),
+      ...uses.map(r=>({id:'uses/'+r.id,userId:r.userId,at:r.createdAt||r.date,view:'usage',kind:'use',record:r})),
+      ...feedbacks.map(r=>({id:'feedbacks/'+r.id,userId:r.userId,at:r.at,view:r.panel,kind:'feedback',record:r}))
+    ].sort((a,b)=>String(b.at).localeCompare(String(a.at)));
+    const firstRecorded = [...unique(data.accesses),...unique(data.uses),...unique(data.feedbacks)].filter(r=>ids.has(r.userId)).map(r=>day(r.at||r.createdAt||r.date)).filter(Boolean).sort()[0] || '';
+    return {events, firstRecorded, trend, grain, rows, enabled: users.length, active: active.size, adoption: users.length ? active.size / users.length * 100 : null,
       recurring: rows.filter(u => u.recurring).length, visits: accesses.filter(r => r.kind !== 'search').length,
       searches: accesses.filter(r => r.kind === 'search').length, uses: uses.length, feedbacks: feedbacks.length,
       departments: breakdown('dept'), works: breakdown('work'),
@@ -64,7 +70,19 @@
     const cell = value => { let text = String(value ?? ''); if (/^[\s]*[=+@-]/.test(text)) text = "'" + text; return '"' + text.replace(/"/g, '""') + '"'; };
     return '\ufeff' + rows.map(row => row.map(cell).join(';')).join('\r\n');
   }
-  return {day, summarize, csv};
+  function details(report, query = {}) {
+    const people = new Map(report.rows.map(u=>[u.id,u]));
+    const person = id => people.get(id);
+    const matchUser = u => u && (!query.userId || u.id===query.userId) && (!query.dept || (u.dept||'Não informado')===query.dept) && (!query.work || (u.work||'Não informado')===query.work);
+    const events = report.events.filter(e => matchUser(person(e.userId)) &&
+      (!query.kind || e.kind===query.kind || query.kind==='consultation' && ['opening','navigation','search'].includes(e.kind)) &&
+      (!query.view || e.view===query.view) && (!query.stage || e.record.stage===query.stage) &&
+      (!query.bucket || day(e.at).startsWith(query.bucket)));
+    if (query.mode !== 'people') return events.map(e=>({...e,person:person(e.userId)}));
+    return report.rows.filter(u=>matchUser(u) && (query.active===undefined || u.active===query.active) &&
+      (!query.recurring || u.recurring) && (!query.bucket || events.some(e=>e.userId===u.id)));
+  }
+  return {day, summarize, csv, details};
 });
 (function () {
   'use strict';
@@ -126,7 +144,7 @@
   const metricFilter = () => ({start: $('metricStart').value, end: $('metricEnd').value, dept: $('metricDept').value, work: $('metricWork').value, userId: $('metricUser').value});
   let report = null;
   const panelNames = Object.fromEntries([...document.querySelectorAll('.nav-btn')].map(b => [b.dataset.view, b.textContent.trim()]));
-  panelNames.entrada = 'Entrada na plataforma';
+  panelNames.entrada = 'Abertura da base';
   function renderMetrics() {
     for (const [id, field] of [['metricDept','dept'],['metricWork','work']]) {
       const selected = $(id).value;
@@ -146,7 +164,7 @@
     $('dashboardReport').hidden = !valid;
     $('dashboardCsv').disabled = !valid;
     $('dashboardPrint').disabled = !valid;
-    if (!valid) { report = null; return; }
+    if (!valid) { report = null; closeDetail(); return; }
     report = LupemaMetrics.summarize(data, LupemaCloud.members, f);
     const pct = v => v === null ? '—' : v.toLocaleString('pt-BR', {maximumFractionDigits:1}) + '%';
     $('metricAdoption').textContent = pct(report.adoption);
@@ -162,6 +180,54 @@
     renderDashboard();
     $('metricStages').textContent = report.stages.map(r => ({cotacao:'Cotações',pedido:'Pedidos',contrato:'Contratos'}[r.label]) + ': ' + r.count).join(' · ');
   }
+  let detailState = null, detailStack = [], detailPage = 0;
+  const detailLimit = 100;
+  const actionNames = {opening:'Abriu a base (nova abertura ou sessão retomada)',navigation:'Abriu um painel',search:'Realizou uma ação de pesquisa',use:'Registrou uma utilização declarada',feedback:'Registrou um feedback'};
+  function drillButton(value, query, title) {
+    if (!query) return '<strong>'+esc(value)+'</strong>';
+    return '<button type="button" class="exec-drill" data-exec-query="'+esc(JSON.stringify(query))+'" data-exec-title="'+esc(title||'Detalhamento')+'" title="Clique para ver quem e quais registros compõem este número">'+esc(value)+'<span aria-hidden="true"> ↗</span></button>';
+  }
+  function stamp(at) { return /^\d{4}-\d{2}-\d{2}$/.test(at||'') ? at.split('-').reverse().join('/')+' (sem horário registrado)' : new Date(at).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}); }
+  function closeDetail() { if ($('execDetail').open) { if ($('execDetail').close) $('execDetail').close(); else $('execDetail').removeAttribute('open'); } detailState=null; detailStack=[]; }
+  function openDetail(query,title,child=false) {
+    if (!report) return;
+    if (child && detailState) detailStack.push(detailState); else detailStack=[];
+    detailState={query,title}; detailPage=0;
+    renderDetail();
+    if (!$('execDetail').open) { if ($('execDetail').showModal) $('execDetail').showModal(); else $('execDetail').setAttribute('open',''); }
+  }
+  function renderDetail() {
+    if (!report || !detailState) return;
+    const {query,title}=detailState, rows=LupemaMetrics.details(report,query), people=query.mode==='people';
+    const page=rows.slice(detailPage*detailLimit,(detailPage+1)*detailLimit);
+    $('execDetailTitle').textContent=title;
+    const explanation=people ? (!query.bucket && query.active===undefined && !query.recurring ? rows.filter(u=>u.active).length+' pessoas com registro de uso ÷ '+rows.length+' pessoas autorizadas neste grupo. ' : 'Cada pessoa é contada uma única vez; clique em registros para conferir suas ações. ') : 'Cada linha corresponde a uma ação registrada; a mesma pessoa pode aparecer várias vezes. ';
+    $('execDetailExplain').textContent=explanation+rows.length+' '+(people?'pessoa(s)':'registro(s)')+' que compõem este número. '+$('dashboardScope').textContent+'. Horários de Brasília.';
+    $('execDetailBack').hidden=!detailStack.length;
+    $('execDetailHead').innerHTML=people?'<tr><th>Nome</th><th>Setor</th><th>Obra</th><th>Registros que explicam a participação</th></tr>':'<tr><th>Data e horário</th><th>Nome</th><th>Setor</th><th>O que fez</th><th>Painel / referência</th></tr>';
+    $('execDetailRows').innerHTML=page.map(row=>{
+      if (people) { const next={...query,mode:'events',userId:row.id}; delete next.active; delete next.recurring; const count=LupemaMetrics.details(report,next).length; return '<tr><td>'+esc(row.name)+'</td><td>'+esc(row.dept||'Não informado')+'</td><td>'+esc(row.work||'Não informada')+'</td><td>'+drillButton(count+' registros',next,'Registros de '+row.name+' · '+(row.dept||'Não informado'))+'</td></tr>'; }
+      const ref=row.kind==='use' ? (row.record.supplier||'Fornecedor não informado')+' · '+({cotacao:'Cotação',pedido:'Pedido',contrato:'Contrato'}[row.record.stage]||row.record.stage||'')+' · Referência: '+(row.record.number||'Não informada') : panelNames[row.view]||row.view||'Não informado';
+      return '<tr><td>'+esc(stamp(row.at))+'</td><td>'+esc(row.person.name)+'</td><td>'+esc(row.person.dept||'Não informado')+'</td><td>'+esc(actionNames[row.kind]||row.kind)+'</td><td>'+esc(ref)+'</td></tr>';
+    }).join('') || '<tr><td colspan="5">Nenhum registro neste recorte. Isso não indica presença online nem comprova ausência de uso antes do início da coleta.</td></tr>';
+    $('execDetailPage').textContent=rows.length ? (detailPage*detailLimit+1)+'–'+Math.min((detailPage+1)*detailLimit,rows.length)+' de '+rows.length : '0 registros';
+    $('execDetailPrev').disabled=detailPage===0; $('execDetailNext').disabled=(detailPage+1)*detailLimit>=rows.length;
+  }
+  document.addEventListener('click',event=>{
+    const button=event.target.closest('[data-exec-query]'); if (!button) return;
+    openDetail(JSON.parse(button.dataset.execQuery),button.dataset.execTitle,!!button.closest('#execDetail'));
+  });
+  document.addEventListener('keydown',event=>{
+    const point=event.target.closest('[data-exec-query]');
+    if (point && point.tagName.toLowerCase()==='circle' && ['Enter',' '].includes(event.key)) {event.preventDefault(); point.dispatchEvent(new MouseEvent('click',{bubbles:true}));}
+  });
+  $('execDetailClose').addEventListener('click',closeDetail);
+  $('execDetail').addEventListener('close',()=>{detailState=null;detailStack=[];});
+  $('execDetailBack').addEventListener('click',()=>{detailState=detailStack.pop();detailPage=0;renderDetail();});
+  $('execDetailPrev').addEventListener('click',()=>{detailPage--;renderDetail();});
+  $('execDetailNext').addEventListener('click',()=>{detailPage++;renderDetail();});
+  const cardQueries={execActive:{mode:'people',active:true},execAdoption:{mode:'people'},execRecurring:{mode:'people',recurring:true},execSearches:{kind:'search'},execUses:{kind:'use'}};
+  for (const [id,query] of Object.entries(cardQueries)) $(id).addEventListener('click',()=>openDetail(query,$(id).closest('article').querySelector('span').textContent));
   function syncDashboardFilters() {
     for (const suffix of ['Start','End','Dept','Work','User']) {
       if (suffix === 'Dept' || suffix === 'Work' || suffix === 'User') $('dashboard'+suffix).innerHTML = $('metric'+suffix).innerHTML;
@@ -169,12 +235,12 @@
     }
   }
   function chartTable(rows, label) {
-    return '<details class="exec-data"><summary>Ver dados do gráfico</summary><div class="table-wrap"><table class="table"><thead><tr><th>Categoria</th><th>' + esc(label) + '</th></tr></thead><tbody>' + rows.map(r => '<tr><td>'+esc(r.label)+'</td><td>'+esc(r.value)+'</td></tr>').join('') + '</tbody></table></div></details>';
+    return '<details class="exec-data"><summary>Ver dados do gráfico</summary><div class="table-wrap"><table class="table"><thead><tr><th>Categoria</th><th>' + esc(label) + '</th></tr></thead><tbody>' + rows.map(r => '<tr><td>'+esc(r.label)+'</td><td>'+(r.query?drillButton(r.value,r.query,r.label):esc(r.value))+'</td></tr>').join('') + '</tbody></table></div></details>';
   }
   function bars(id, rows, percent = false) {
     const max = percent ? 100 : Math.max(1,...rows.map(r=>r.count));
     const fmt = n => n.toLocaleString('pt-BR',{maximumFractionDigits:1}) + (percent?'%':'');
-    $(id).innerHTML = rows.length ? '<div class="exec-bars">' + rows.map(r=>'<div class="exec-bar-row"><div class="exec-bar-label"><span>'+esc(r.label)+'</span><strong>'+esc(fmt(r.count))+'</strong></div><div class="exec-track"><div style="width:'+Math.min(100,Math.max(0,r.count/max*100))+'%"></div></div>'+(r.note?'<small>'+esc(r.note)+'</small>':'')+'</div>').join('') + '</div>' + chartTable(rows.map(r=>({label:r.label,value:fmt(r.count)+(r.note?' · '+r.note:'')})),percent?'Adesão':'Eventos') : '<p class="exec-empty">Sem dados neste recorte.</p>';
+    $(id).innerHTML = rows.length ? '<div class="exec-bars">' + rows.map(r=>'<div class="exec-bar-row"><div class="exec-bar-label"><span>'+esc(r.label)+'</span>'+drillButton(fmt(r.count),r.query,r.label)+'</div><div class="exec-track"><div style="width:'+Math.min(100,Math.max(0,r.count/max*100))+'%"></div></div>'+(r.note?'<small>'+esc(r.note)+'</small>':'')+'</div>').join('') + '</div>' + chartTable(rows.map(r=>({label:r.label,value:fmt(r.count)+(r.note?' · '+r.note:''),query:r.query})),percent?'Adesão':'Eventos') : '<p class="exec-empty">Sem dados neste recorte.</p>';
   }
   function renderDashboard() {
     const f = metricFilter(), pct = n => n === null ? '—' : n.toLocaleString('pt-BR',{maximumFractionDigits:1})+'%';
@@ -182,7 +248,7 @@
     const me = LupemaCloud.user;
     $('dashboardIdentity').textContent = 'Você está conectado como '+(me.name || 'Usuário identificado')+' · Setor: '+(me.dept || 'Não informado')+' · Obra: '+(me.work || 'Não informada');
     $('execUserRows').innerHTML = report.rows.map(u => '<tr><td><strong>'+esc(u.name)+'</strong></td><td><span class="exec-sector">'+esc(u.dept || 'Não informado')+'</span></td><td>'+esc(u.work || 'Não informada')+'</td><td><span class="exec-status '+(u.active?'is-active':'is-inactive')+'">'+(u.active?'Com atividade':'Sem atividade')+'</span></td><td>'+u.visits+'</td><td>'+u.searches+'</td><td>'+u.uses+'</td><td>'+u.feedbacks+'</td><td>'+(u.last?esc(new Date(u.last).toLocaleString('pt-BR')):'Sem registro no período')+'</td></tr>').join('') || '<tr><td colspan="9">Nenhum usuário neste recorte.</td></tr>';
-    bars('execPeople',report.rows.slice().sort((a,b)=>(b.visits+b.searches)-(a.visits+a.searches)).map(u=>({label:(u.name || 'Sem nome')+' · '+(u.dept || 'Setor não informado'),count:u.visits+u.searches,note:'Entradas, navegações e pesquisas; não mede produtividade individual'})));
+    bars('execPeople',report.rows.slice().sort((a,b)=>(b.visits+b.searches)-(a.visits+a.searches)).map(u=>({label:(u.name || 'Sem nome')+' · '+(u.dept || 'Setor não informado'),count:u.visits+u.searches,note:'Ações registradas: a mesma pessoa pode realizar várias.',query:{userId:u.id,kind:'consultation'}})));
     $('execActive').textContent=report.active;
     $('execAdoption').textContent=pct(report.adoption);
     $('execRecurring').textContent=report.recurring;
@@ -190,27 +256,39 @@
     $('execUses').textContent=report.uses;
     $('execBase').textContent=report.enabled+' colaboradores atualmente autorizados no recorte';
     const inactive=report.enabled-report.active, percentage=report.adoption||0;
-    $('execParticipation').innerHTML=report.enabled?'<div class="exec-participation"><div class="exec-donut" role="img" aria-label="'+report.active+' ativos e '+inactive+' sem atividade no período" style="background:conic-gradient(#147653 0% '+percentage+'%,#f5b857 '+percentage+'% 100%)"><div><strong>'+pct(report.adoption)+'</strong><span>de adesão</span></div></div><div><p><span class="exec-dot"></span> '+report.active+' com atividade</p><p><span class="exec-dot muted-dot"></span> '+inactive+' sem atividade</p></div></div>':'<p class="exec-empty">Nenhum colaborador neste recorte.</p>';
-    bars('execDepartments',report.departments.map(r=>({label:r.label,count:r.active/r.enabled*100,note:r.active+' de '+r.enabled+' colaboradores'})),true);
-    bars('execWorks',report.works.map(r=>({label:r.label,count:r.active/r.enabled*100,note:r.active+' de '+r.enabled+' colaboradores'})),true);
-    bars('execPanels',report.panels.map(r=>({label:panelNames[r.label]||r.label,count:r.count})));
-    bars('execStages',report.stages.map(r=>({label:{cotacao:'Cotações',pedido:'Pedidos',contrato:'Contratos'}[r.label],count:r.count})));
-    const points=report.trend, high=Math.max(1,...points.map(r=>r.count)), w=640,h=220,left=36,top=18,bottom=184;
-    const x=i=>left+(w-left-16)*(points.length===1?.5:i/(points.length-1));
+    $('execParticipation').innerHTML=report.enabled?'<div class="exec-participation"><div class="exec-donut" role="group" aria-label="'+report.active+' pessoas utilizaram a base entre '+report.enabled+' autorizadas" style="background:conic-gradient(#147653 0% '+percentage+'%,#f5b857 '+percentage+'% 100%)"><div>'+drillButton(pct(report.adoption),{mode:'people'},'Pessoas autorizadas e participação')+'<span>usaram a base</span></div></div><div><p>'+drillButton(report.active+' pessoas utilizaram',{mode:'people',active:true},'Quem utilizou a base')+'</p><p>'+drillButton(inactive+' sem registro de uso',{mode:'people',active:false},'Pessoas sem registro de uso no período')+'</p></div></div><div class="exec-roster">'+report.departments.map(d=>'<div><b>'+esc(d.label)+'</b><p>'+d.active+' de '+d.enabled+' pessoas utilizaram a base</p>'+report.rows.filter(u=>(u.dept||'Não informado')===d.label).map(u=>drillButton(u.name+' · '+(u.active?'utilizou':'sem registro'),{userId:u.id},'Registros de '+u.name+' · '+d.label)).join(' ')+'</div>').join('')+'</div>':'<p class="exec-empty">Nenhum colaborador neste recorte.</p>';
+    bars('execDepartments',report.departments.map(r=>({label:r.label,count:r.active/r.enabled*100,note:r.active+' de '+r.enabled+' colaboradores',query:{mode:'people',dept:r.label}})),true);
+    bars('execWorks',report.works.map(r=>({label:r.label,count:r.active/r.enabled*100,note:r.active+' de '+r.enabled+' colaboradores',query:{mode:'people',work:r.label}})),true);
+    bars('execPanels',report.panels.map(r=>({label:panelNames[r.label]||r.label,count:r.count,query:{view:r.label,kind:'consultation'}})));
+    bars('execStages',report.stages.map(r=>({label:{cotacao:'Cotações',pedido:'Pedidos',contrato:'Contratos'}[r.label],count:r.count,query:{kind:'use',stage:r.label}})));
+    const points=report.trend, high=Math.max(1,...points.map(r=>r.count)), w=640,h=230,left=40,top=28,bottom=188;
+    const x=i=>left+(w-left-18)*(points.length===1?.5:i/(points.length-1));
     const y=n=>bottom-(bottom-top)*n/high;
-    const labels=points.map((r,i)=>({i,label:report.grain==='dia'?r.label.slice(8)+'/'+r.label.slice(5,7):report.grain==='mês'?r.label.slice(5)+'/'+r.label.slice(0,4):r.label}));
+    const formatBucket=label=>label.length===10?label.slice(8)+'/'+label.slice(5,7)+'/'+label.slice(0,4):label.length===7?label.slice(5)+'/'+label.slice(0,4):label;
+    const colors=['#2563a6','#7553a6','#127e89','#b87813','#15734e','#ac4769'];
+    const historyKey=report.firstRecorded.slice(0,report.grain==='dia'?10:report.grain==='mês'?7:4);
+    const peopleById=new Map(report.rows.map(u=>[u.id,u]));
+    const periodPeople=new Map();
+    report.events.forEach(e=>{const bucket=LupemaMetrics.day(e.at).slice(0,report.grain==='dia'?10:report.grain==='mês'?7:4),dept=peopleById.get(e.userId)?.dept||'Não informado',key=JSON.stringify([bucket,dept]); if(!periodPeople.has(key)) periodPeople.set(key,new Set()); periodPeople.get(key).add(e.userId);});
+    const idsAt=(bucket,dept)=>periodPeople.get(JSON.stringify([bucket,dept]))||new Set();
+    const series=report.departments.map((dept,index)=>({label:dept.label,color:colors[index%colors.length],points:points.map(p=>({label:p.label,count:idsAt(p.label,dept.label).size}))}));
     const ticks=[...new Set([0,Math.floor((points.length-1)/2),points.length-1])];
-    $('execTrendNote').textContent='Usuários únicos por '+report.grain+'; o mesmo usuário pode aparecer em períodos diferentes. Períodos sem registros são exibidos com zero.';
-    $('execTrend').innerHTML=points.length?'<svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Evolução de usuários ativos por '+report.grain+'" class="exec-line"><title>Usuários únicos por '+report.grain+'</title>'+[0,high].map(n=>'<line x1="'+left+'" x2="'+(w-16)+'" y1="'+y(n)+'" y2="'+y(n)+'" stroke="#dce5df"/><text x="'+(left-8)+'" y="'+(y(n)+4)+'" text-anchor="end">'+n+'</text>').join('')+'<polyline fill="none" stroke="#2563a6" stroke-width="3" points="'+points.map((r,i)=>x(i)+','+y(r.count)).join(' ')+'"/>'+points.map((r,i)=>'<circle cx="'+x(i)+'" cy="'+y(r.count)+'" r="3" fill="#2563a6"><title>'+esc(r.label)+': '+r.count+' usuários</title></circle>').join('')+ticks.map(i=>'<text x="'+x(i)+'" y="208" text-anchor="'+(i===0?'start':i===points.length-1?'end':'middle')+'">'+esc(labels[i].label)+'</text>').join('')+'</svg>'+chartTable(points.map(r=>({label:r.label,value:r.count})),'Usuários únicos'):'<p class="exec-empty">Sem dados neste recorte.</p>';
+    $('execTrendNote').textContent='Cada linha representa um setor. O número indica pessoas diferentes que utilizaram a base por '+report.grain+', mesmo que tenham realizado várias ações. Clique em um ponto ou na tabela para ver os nomes e os registros.';
+    const legend='<div class="exec-legend">'+series.map(r=>'<span><i style="background:'+r.color+'"></i>'+esc(r.label)+'</span>').join('')+'</div>';
+    const paths=series.map(r=>'<polyline fill="none" stroke="'+r.color+'" stroke-width="3" points="'+r.points.map((p,i)=>({p,i})).filter(({p})=>historyKey&&p.label>=historyKey).map(({p,i})=>x(i)+','+y(p.count)).join(' ')+'"/>'+r.points.map((p,i)=>p.count?'<circle role="button" tabindex="0" aria-label="'+esc(r.label+' · '+formatBucket(p.label)+' · '+p.count+' pessoas: ver detalhes')+'" data-exec-query="'+esc(JSON.stringify({mode:'people',dept:r.label,bucket:p.label}))+'" data-exec-title="'+esc(r.label+' · '+formatBucket(p.label))+'" cx="'+x(i)+'" cy="'+y(p.count)+'" r="6" fill="'+r.color+'"><title>'+esc(r.label)+' · '+formatBucket(p.label)+': '+p.count+' pessoas; clique para ver nomes</title></circle>':'').join('')).join('');
+    const trendRows=series.flatMap(r=>r.points.filter(p=>p.count).map(p=>({label:p.label,dept:r.label,count:p.count,people:report.rows.filter(u=>idsAt(p.label,r.label).has(u.id))}))).sort((a,b)=>b.label.localeCompare(a.label));
+    const table='<div class="table-wrap"><table class="table"><thead><tr><th>Data / período</th><th>Setor</th><th>Pessoas que utilizaram</th><th>Nomes</th></tr></thead><tbody>'+trendRows.map(r=>'<tr><td>'+esc(formatBucket(r.label))+'</td><td>'+esc(r.dept)+'</td><td>'+drillButton(r.count+' pessoas',{mode:'people',dept:r.dept,bucket:r.label},r.dept+' · '+formatBucket(r.label))+'</td><td>'+r.people.map(u=>drillButton(u.name,{userId:u.id,bucket:r.label},u.name+' · '+formatBucket(r.label))).join(' ')+'</td></tr>').join('')+'</tbody></table></div>';
+    $('execTrend').innerHTML=trendRows.length ? legend+'<svg viewBox="0 0 '+w+' '+h+'" role="group" aria-label="Pessoas que utilizaram a base por setor e por '+report.grain+'" class="exec-line"><title>Pessoas que utilizaram a base por setor</title><text x="'+left+'" y="14">Pessoas</text>'+[0,high].map(n=>'<line x1="'+left+'" x2="'+(w-18)+'" y1="'+y(n)+'" y2="'+y(n)+'" stroke="#dce5df"/><text x="'+(left-8)+'" y="'+(y(n)+4)+'" text-anchor="end">'+n+'</text>').join('')+paths+ticks.map(i=>'<text x="'+x(i)+'" y="218" text-anchor="'+(i===0?'start':i===points.length-1?'end':'middle')+'">'+esc(formatBucket(points[i].label))+'</text>').join('')+'</svg>'+table+'<p class="small muted">A tabela mostra os períodos com registros. Primeiro registro disponível para os usuários deste recorte: '+esc(formatBucket(report.firstRecorded))+'. Antes disso não há histórico suficiente para afirmar que ninguém utilizou a base.</p>' : '<p class="exec-empty">Não há registros de utilização neste período para os usuários selecionados. Não é possível apresentar uma evolução sem registros.</p>';
+    if (detailState && $('execDetail').open) renderDetail();
     $('execSummary').textContent=report.enabled ? report.active+' de '+report.enabled+' colaboradores tiveram atividade. '+report.recurring+' utilizaram a base em pelo menos duas semanas distintas. Foram registradas '+report.searches+' ações de pesquisa e '+report.uses+' utilizações declaradas.' : 'Nenhum usuário autorizado corresponde aos filtros selecionados.';
     $('execUpdated').textContent='Quadro calculado às '+new Date().toLocaleTimeString('pt-BR')+' · Dados compartilhados carregados nesta sessão';
   }
-  for (const suffix of ['Start','End','Dept','Work','User']) $('dashboard'+suffix).addEventListener('change',()=>{ $('metric'+suffix).value=$('dashboard'+suffix).value; renderMetrics(); });
+  for (const suffix of ['Start','End','Dept','Work','User']) $('dashboard'+suffix).addEventListener('change',()=>{ $('metric'+suffix).value=$('dashboard'+suffix).value; closeDetail(); renderMetrics(); });
   $('dashboardCsv').addEventListener('click',()=>$('metricCsv').click());
   $('dashboardPrint').addEventListener('click',()=>window.print());
   const end = today(), start = new Date(end + 'T12:00:00Z'); start.setUTCDate(start.getUTCDate()-29);
   $('metricStart').value = start.toISOString().slice(0,10); $('metricEnd').value = end;
-  for (const id of ['metricStart','metricEnd','metricDept','metricWork','metricUser']) $(id).addEventListener('change', renderMetrics);
+  for (const id of ['metricStart','metricEnd','metricDept','metricWork','metricUser']) $(id).addEventListener('change', ()=>{closeDetail();renderMetrics();});
   $('metricCsv').addEventListener('click', () => {
     if (!report) return;
     const f = metricFilter();
