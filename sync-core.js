@@ -141,5 +141,12 @@
       return finished;
     }
   }
-  return {SharedStore, encode, decode, stable, specs};
+  function canWrite(role, userId, changes) {
+    if (role === 'admin' || role === 'editor') return true;
+    if (role !== 'leitor' || !userId) return false;
+    return changes.every(change => change.colecao === 'lupemaUsageControlV1' &&
+      String(change.id || '').startsWith('accesses/') && change.revisao_esperada === null && !change.excluido &&
+      change.dados?.kind === 'accesses' && change.dados?.record?.userId === userId);
+  }
+  return {SharedStore, encode, decode, stable, specs, canWrite};
 });

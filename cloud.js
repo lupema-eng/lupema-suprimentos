@@ -123,6 +123,7 @@
     } finally { refreshing = false; }
   }
   function errorMessage(error) {
+    if (error.code === 'LUPEMA_READ_ONLY') return error.message;
     if (error.code === '40001') return 'Outro usuário alterou este registro. A base foi atualizada; revise os dados e tente novamente.';
     if (error.code === '23505') return 'Este documento de fornecedor já está cadastrado na base compartilhada.';
     if (error.status === 401 || error.code === 'LUPEMA_ACCESS') return 'Seu acesso precisa ser renovado. Exporte a alteração não confirmada antes de entrar novamente.';
@@ -130,6 +131,11 @@
   }
   async function writeMany(values, options = {}) {
     const snapshot = JSON.parse(JSON.stringify(values));
+    if (!LupemaSync.canWrite(cloud.role,session?.user?.id,store.changes(snapshot))) {
+      const error=Object.assign(Error('Seu perfil permite somente consulta. Os cadastros não foram alterados.'),{code:'LUPEMA_READ_ONLY'});
+      if(!options.quiet) alert(error.message);
+      throw error;
+    }
     if (!options.quiet) { busyCount++; busy.hidden = false; }
     if (!options.quiet || !lastFailure) state('Gravando na base compartilhada…');
     try {
@@ -177,6 +183,25 @@
       saveSession(null); location.reload();
     }
   };
+  function applyAccessMode() {
+    if (cloud.role !== 'leitor') return;
+    document.body.classList.add('lupema-reader');
+    for (const id of ['quickLeadForm','leadForm','needForm','usageUseForm','usageFeedbackForm']) if($(id)) $(id).hidden=true;
+    for (const id of ['refSave','shortlistCreateGroup','usageImport']) if($(id)) $(id).disabled=true;
+    document.querySelector('label[for="usageImport"]')?.setAttribute('hidden','');
+    const note=document.createElement('p');note.className='cloud-reader-note';note.textContent='Acesso somente consulta · Você pode pesquisar, visualizar os cadastros e exportar resultados. Inclusões, alterações e exclusões são reservadas aos perfis autorizados.';
+    status.after(note);
+  }
+  document.addEventListener('submit',event=>{
+    if(cloud.role==='leitor' && event.target.id!=='cloudLoginForm') {event.preventDefault();event.stopImmediatePropagation();alert('Seu perfil permite somente consulta.');}
+  },true);
+  document.addEventListener('click',event=>{
+    if(cloud.role!=='leitor')return;
+    const target=event.target.closest('button,[onclick],label'); if(!target)return;
+    const code=target.getAttribute('onclick')||'';
+    const blocked=['editLead','removeLead','removeNeed','completeNeed','removeShortlistGroup','saveSupplierClasses','saveSupplierContactUpdate','prepareCapture','planFromContract'];
+    if (blocked.some(name=>new RegExp('\\b'+name+'\\s*\\(').test(code)) || target.matches('[data-usage-remove],#drawerShortlist,[for="usageImport"]')) {event.preventDefault();event.stopImmediatePropagation();alert('Seu perfil permite somente consulta.');}
+  },true);
   function loadScript(name) {
     return new Promise((resolve, reject) => {
       let runtimeError = null;
@@ -203,6 +228,7 @@
       store.hydrate(await fetchRecords());
       await loadScript('main.js'); await loadScript('references.js'); await loadScript('usage.js');
       started = true;
+      applyAccessMode();
       document.body.classList.remove('lupema-locked'); gate.hidden = true;
       $('cloudPassword').value = '';
       state('Base compartilhada · ' + cloud.user.name);
