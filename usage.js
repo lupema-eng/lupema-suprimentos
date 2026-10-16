@@ -17,7 +17,7 @@
     return date.toISOString().slice(0, 10);
   }
   function summarize(data, members, filter) {
-    const users = members.filter(u => (!filter.dept || u.dept === filter.dept) && (!filter.work || u.work === filter.work));
+    const users = members.filter(u => (!filter.dept || u.dept === filter.dept) && (!filter.work || u.work === filter.work) && (!filter.userId || u.id === filter.userId));
     const ids = new Set(users.map(u => u.id));
     const within = r => { const d = day(r.at || r.createdAt || r.date); return ids.has(r.userId) && d && d >= filter.start && d <= filter.end; };
     const unique = rows => [...new Map((rows || []).filter(r => r && r.id).map(r => [r.id, r])).values()];
@@ -123,7 +123,7 @@
     data.accesses.push({id: crypto.randomUUID(), userId: current, view, kind, at: new Date().toISOString()});
     try { await save({quiet: true}); } catch { /* O indicador informa a falha; nenhuma confirmação falsa. */ }
   }
-  const metricFilter = () => ({start: $('metricStart').value, end: $('metricEnd').value, dept: $('metricDept').value, work: $('metricWork').value});
+  const metricFilter = () => ({start: $('metricStart').value, end: $('metricEnd').value, dept: $('metricDept').value, work: $('metricWork').value, userId: $('metricUser').value});
   let report = null;
   const panelNames = Object.fromEntries([...document.querySelectorAll('.nav-btn')].map(b => [b.dataset.view, b.textContent.trim()]));
   panelNames.entrada = 'Entrada na plataforma';
@@ -133,6 +133,10 @@
       $(id).innerHTML = '<option value="">Todos</option>' + [...new Set(LupemaCloud.members.map(u => u[field]).filter(Boolean))].sort().map(v => '<option>' + esc(v) + '</option>').join('');
       $(id).value = selected;
     }
+    const chosen = $('metricUser').value;
+    const available = LupemaCloud.members.filter(u => (!$('metricDept').value || u.dept === $('metricDept').value) && (!$('metricWork').value || u.work === $('metricWork').value));
+    $('metricUser').innerHTML = '<option value="">Todos os usuários</option>' + available.map(u => '<option value="'+esc(u.id)+'">'+esc(u.name)+' · '+esc(u.dept || 'Setor não informado')+'</option>').join('');
+    $('metricUser').value = available.some(u => u.id === chosen) ? chosen : '';
     const f = metricFilter();
     const valid = f.start && f.end && f.start <= f.end;
     $('metricError').textContent = valid ? '' : 'Informe um período válido, com início anterior ou igual ao fim.';
@@ -159,8 +163,8 @@
     $('metricStages').textContent = report.stages.map(r => ({cotacao:'Cotações',pedido:'Pedidos',contrato:'Contratos'}[r.label]) + ': ' + r.count).join(' · ');
   }
   function syncDashboardFilters() {
-    for (const suffix of ['Start','End','Dept','Work']) {
-      if (suffix === 'Dept' || suffix === 'Work') $('dashboard'+suffix).innerHTML = $('metric'+suffix).innerHTML;
+    for (const suffix of ['Start','End','Dept','Work','User']) {
+      if (suffix === 'Dept' || suffix === 'Work' || suffix === 'User') $('dashboard'+suffix).innerHTML = $('metric'+suffix).innerHTML;
       $('dashboard'+suffix).value = $('metric'+suffix).value;
     }
   }
@@ -174,7 +178,11 @@
   }
   function renderDashboard() {
     const f = metricFilter(), pct = n => n === null ? '—' : n.toLocaleString('pt-BR',{maximumFractionDigits:1})+'%';
-    $('dashboardScope').textContent = new Date(f.start+'T12:00:00').toLocaleDateString('pt-BR')+' a '+new Date(f.end+'T12:00:00').toLocaleDateString('pt-BR')+' · '+(f.dept||'Todos os setores')+' · '+(f.work||'Todas as obras');
+    $('dashboardScope').textContent = new Date(f.start+'T12:00:00').toLocaleDateString('pt-BR')+' a '+new Date(f.end+'T12:00:00').toLocaleDateString('pt-BR')+' · '+(f.dept||'Todos os setores')+' · '+(f.work||'Todas as obras')+' · '+(LupemaCloud.members.find(u=>u.id===f.userId)?.name || 'Todos os usuários');
+    const me = LupemaCloud.user;
+    $('dashboardIdentity').textContent = 'Você está conectado como '+(me.name || 'Usuário identificado')+' · Setor: '+(me.dept || 'Não informado')+' · Obra: '+(me.work || 'Não informada');
+    $('execUserRows').innerHTML = report.rows.map(u => '<tr><td><strong>'+esc(u.name)+'</strong></td><td><span class="exec-sector">'+esc(u.dept || 'Não informado')+'</span></td><td>'+esc(u.work || 'Não informada')+'</td><td><span class="exec-status '+(u.active?'is-active':'is-inactive')+'">'+(u.active?'Com atividade':'Sem atividade')+'</span></td><td>'+u.visits+'</td><td>'+u.searches+'</td><td>'+u.uses+'</td><td>'+u.feedbacks+'</td><td>'+(u.last?esc(new Date(u.last).toLocaleString('pt-BR')):'Sem registro no período')+'</td></tr>').join('') || '<tr><td colspan="9">Nenhum usuário neste recorte.</td></tr>';
+    bars('execPeople',report.rows.slice().sort((a,b)=>(b.visits+b.searches)-(a.visits+a.searches)).map(u=>({label:(u.name || 'Sem nome')+' · '+(u.dept || 'Setor não informado'),count:u.visits+u.searches,note:'Entradas, navegações e pesquisas; não mede produtividade individual'})));
     $('execActive').textContent=report.active;
     $('execAdoption').textContent=pct(report.adoption);
     $('execRecurring').textContent=report.recurring;
@@ -182,7 +190,7 @@
     $('execUses').textContent=report.uses;
     $('execBase').textContent=report.enabled+' colaboradores atualmente autorizados no recorte';
     const inactive=report.enabled-report.active, percentage=report.adoption||0;
-    $('execParticipation').innerHTML=report.enabled?'<div class="exec-participation"><div class="exec-donut" role="img" aria-label="'+report.active+' ativos e '+inactive+' sem atividade no período" style="background:conic-gradient(#147653 0% '+percentage+'%,#e5ebe7 '+percentage+'% 100%)"><div><strong>'+pct(report.adoption)+'</strong><span>de adesão</span></div></div><div><p><span class="exec-dot"></span> '+report.active+' com atividade</p><p><span class="exec-dot muted-dot"></span> '+inactive+' sem atividade</p></div></div>':'<p class="exec-empty">Nenhum colaborador neste recorte.</p>';
+    $('execParticipation').innerHTML=report.enabled?'<div class="exec-participation"><div class="exec-donut" role="img" aria-label="'+report.active+' ativos e '+inactive+' sem atividade no período" style="background:conic-gradient(#147653 0% '+percentage+'%,#f5b857 '+percentage+'% 100%)"><div><strong>'+pct(report.adoption)+'</strong><span>de adesão</span></div></div><div><p><span class="exec-dot"></span> '+report.active+' com atividade</p><p><span class="exec-dot muted-dot"></span> '+inactive+' sem atividade</p></div></div>':'<p class="exec-empty">Nenhum colaborador neste recorte.</p>';
     bars('execDepartments',report.departments.map(r=>({label:r.label,count:r.active/r.enabled*100,note:r.active+' de '+r.enabled+' colaboradores'})),true);
     bars('execWorks',report.works.map(r=>({label:r.label,count:r.active/r.enabled*100,note:r.active+' de '+r.enabled+' colaboradores'})),true);
     bars('execPanels',report.panels.map(r=>({label:panelNames[r.label]||r.label,count:r.count})));
@@ -193,16 +201,16 @@
     const labels=points.map((r,i)=>({i,label:report.grain==='dia'?r.label.slice(8)+'/'+r.label.slice(5,7):report.grain==='mês'?r.label.slice(5)+'/'+r.label.slice(0,4):r.label}));
     const ticks=[...new Set([0,Math.floor((points.length-1)/2),points.length-1])];
     $('execTrendNote').textContent='Usuários únicos por '+report.grain+'; o mesmo usuário pode aparecer em períodos diferentes. Períodos sem registros são exibidos com zero.';
-    $('execTrend').innerHTML=points.length?'<svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Evolução de usuários ativos por '+report.grain+'" class="exec-line"><title>Usuários únicos por '+report.grain+'</title>'+[0,high].map(n=>'<line x1="'+left+'" x2="'+(w-16)+'" y1="'+y(n)+'" y2="'+y(n)+'" stroke="#dce5df"/><text x="'+(left-8)+'" y="'+(y(n)+4)+'" text-anchor="end">'+n+'</text>').join('')+'<polyline fill="none" stroke="#147653" stroke-width="3" points="'+points.map((r,i)=>x(i)+','+y(r.count)).join(' ')+'"/>'+points.map((r,i)=>'<circle cx="'+x(i)+'" cy="'+y(r.count)+'" r="3" fill="#147653"><title>'+esc(r.label)+': '+r.count+' usuários</title></circle>').join('')+ticks.map(i=>'<text x="'+x(i)+'" y="208" text-anchor="'+(i===0?'start':i===points.length-1?'end':'middle')+'">'+esc(labels[i].label)+'</text>').join('')+'</svg>'+chartTable(points.map(r=>({label:r.label,value:r.count})),'Usuários únicos'):'<p class="exec-empty">Sem dados neste recorte.</p>';
+    $('execTrend').innerHTML=points.length?'<svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Evolução de usuários ativos por '+report.grain+'" class="exec-line"><title>Usuários únicos por '+report.grain+'</title>'+[0,high].map(n=>'<line x1="'+left+'" x2="'+(w-16)+'" y1="'+y(n)+'" y2="'+y(n)+'" stroke="#dce5df"/><text x="'+(left-8)+'" y="'+(y(n)+4)+'" text-anchor="end">'+n+'</text>').join('')+'<polyline fill="none" stroke="#2563a6" stroke-width="3" points="'+points.map((r,i)=>x(i)+','+y(r.count)).join(' ')+'"/>'+points.map((r,i)=>'<circle cx="'+x(i)+'" cy="'+y(r.count)+'" r="3" fill="#2563a6"><title>'+esc(r.label)+': '+r.count+' usuários</title></circle>').join('')+ticks.map(i=>'<text x="'+x(i)+'" y="208" text-anchor="'+(i===0?'start':i===points.length-1?'end':'middle')+'">'+esc(labels[i].label)+'</text>').join('')+'</svg>'+chartTable(points.map(r=>({label:r.label,value:r.count})),'Usuários únicos'):'<p class="exec-empty">Sem dados neste recorte.</p>';
     $('execSummary').textContent=report.enabled ? report.active+' de '+report.enabled+' colaboradores tiveram atividade. '+report.recurring+' utilizaram a base em pelo menos duas semanas distintas. Foram registradas '+report.searches+' ações de pesquisa e '+report.uses+' utilizações declaradas.' : 'Nenhum usuário autorizado corresponde aos filtros selecionados.';
     $('execUpdated').textContent='Quadro calculado às '+new Date().toLocaleTimeString('pt-BR')+' · Dados compartilhados carregados nesta sessão';
   }
-  for (const suffix of ['Start','End','Dept','Work']) $('dashboard'+suffix).addEventListener('change',()=>{ $('metric'+suffix).value=$('dashboard'+suffix).value; renderMetrics(); });
+  for (const suffix of ['Start','End','Dept','Work','User']) $('dashboard'+suffix).addEventListener('change',()=>{ $('metric'+suffix).value=$('dashboard'+suffix).value; renderMetrics(); });
   $('dashboardCsv').addEventListener('click',()=>$('metricCsv').click());
   $('dashboardPrint').addEventListener('click',()=>window.print());
   const end = today(), start = new Date(end + 'T12:00:00Z'); start.setUTCDate(start.getUTCDate()-29);
   $('metricStart').value = start.toISOString().slice(0,10); $('metricEnd').value = end;
-  for (const id of ['metricStart','metricEnd','metricDept','metricWork']) $(id).addEventListener('change', renderMetrics);
+  for (const id of ['metricStart','metricEnd','metricDept','metricWork','metricUser']) $(id).addEventListener('change', renderMetrics);
   $('metricCsv').addEventListener('click', () => {
     if (!report) return;
     const f = metricFilter();
