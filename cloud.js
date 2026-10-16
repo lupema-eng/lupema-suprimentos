@@ -3,7 +3,7 @@
   const config = window.LUPEMA_CONFIG || {};
   const $ = id => document.getElementById(id);
   const gate = $('lupemaGate');
-  let session = null, members = [], started = false, loading = false, refreshing = false;
+  let session = null, members = [], started = false, loading = false, refreshing = false, reloadRequired = false;
   let refreshPromise = null, lastFailure = null, busyCount = 0;
   const baseUrl = String(config.supabaseUrl || '').replace(/\/+$/, '');
   const key = String(config.publishableKey || '');
@@ -175,9 +175,10 @@
       let runtimeError = null;
       const onError = event => { if (event.filename && new URL(event.filename, location.href).pathname.endsWith('/' + name)) runtimeError = event.error || Error(event.message); };
       window.addEventListener('error', onError);
-      const script = document.createElement('script'); script.src = './' + name;
-      script.onload = () => { window.removeEventListener('error', onError); runtimeError ? reject(runtimeError) : resolve(); };
-      script.onerror = () => { window.removeEventListener('error', onError); reject(Error('Falha ao carregar o sistema. Recarregue a página.')); };
+      const script = document.createElement('script'); script.src = './' + name + '?v=' + encodeURIComponent(config.assetVersion || '1');
+      const failed = () => { reloadRequired = true; reject(Object.assign(Error('Falha ao abrir a plataforma.'), {code: 'LUPEMA_APP_INIT'})); };
+      script.onload = () => { window.removeEventListener('error', onError); runtimeError ? failed() : resolve(); };
+      script.onerror = () => { window.removeEventListener('error', onError); failed(); };
       document.body.appendChild(script);
     });
   }
@@ -202,7 +203,9 @@
     } finally { loading = false; }
   }
   $('cloudLoginForm').addEventListener('submit', async event => {
-    event.preventDefault(); $('cloudLogin').disabled = true; $('cloudLoginError').textContent = 'Verificando acesso…';
+    event.preventDefault();
+    if (reloadRequired) { location.reload(); return; }
+    $('cloudLogin').disabled = true; $('cloudLoginError').textContent = 'Verificando acesso…';
     try {
       const value = await raw('/auth/v1/token?grant_type=password', {
         method: 'POST', body: JSON.stringify({email: $('cloudEmail').value.trim(), password: $('cloudPassword').value})
@@ -210,10 +213,13 @@
       saveSession(value); await start();
     } catch (error) {
       $('cloudLoginError').textContent = error.code === 'LUPEMA_ACCESS' ? error.message :
+        error.code === 'LUPEMA_APP_INIT' ? 'Não foi possível abrir a plataforma. Clique em Recarregar plataforma e entre novamente.' :
         error.status === 400 || error.status === 401 ? 'E-mail ou senha inválidos, ou acesso ainda não confirmado.' :
+        error.status === 403 || error.code === '42501' ? 'Seu login foi recebido, mas o acesso à base foi bloqueado. Solicite a revisão das permissões ao responsável.' :
+        error.name === 'AbortError' ? 'O servidor demorou a responder. Aguarde um momento e tente entrar novamente.' :
         error.message.includes('base inicial') ? error.message : 'Não foi possível entrar. Confira a conexão e a configuração do sistema.';
       saveSession(null);
-    } finally { $('cloudLogin').disabled = false; }
+    } finally { $('cloudLogin').disabled = false; $('cloudLogin').textContent = reloadRequired ? 'Recarregar plataforma' : 'Entrar'; }
   });
   $('cloudRefresh').addEventListener('click', () => refresh(true));
   $('lupemaLogout').addEventListener('click', () => cloud.logout());
