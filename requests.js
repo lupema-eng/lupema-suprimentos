@@ -1,0 +1,27 @@
+(function(){
+  'use strict';
+  const database=CATALOG.purchaseRequests,records=database?.records||[],q=id=>document.getElementById(id);
+  const fields={query:q('requestQuery'),work:q('requestWork'),status:q('requestStatus'),observation:q('requestObservation')};
+  const safe=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function matches(r,term){
+    term=String(term||'').trim();const sc=term.match(/^(?:sc\s*)?(\d+)$/i);
+    if(sc)return r.number===sc[1]||!/^sc/i.test(term)&&r.items.some(i=>i.c===sc[1]);
+    return !term||containsTokens(subjectText([r.number,r.work,r.requester,...(r.observations||[]),...r.items.map(i=>[i.c,i.d,i.detail,i.brand].join(' '))].join(' | ')),subjectText(term));
+  }
+  const sort=(a,b)=>(b.date||'').localeCompare(a.date||'')||Number(b.number)-Number(a.number);
+  function filtered(term,work='',status='',observation=''){return records.filter(r=>(!work||r.workCode===work)&&(!status||r.items.some(i=>i.status===status))&&(!observation||containsTokens((r.observations||[]).join(' | '),observation))&&matches(r,term)).sort(sort);}
+  window.LupemaRequestSearch=function(request){
+    if(!database)return[];
+    return filtered(request.query).filter(r=>(!request.requestNumber||r.number===request.requestNumber)&&(!request.context?.work||containsTokens(r.work,request.context.work))).map(r=>({kind:'requests',id:r.workCode+':'+r.number,title:'SC '+r.number+' · '+r.work,subtitle:[r.date?fmtDate(r.date):'Sem data',r.items.length+' linhas de insumos',...new Set(r.items.map(i=>i.status))].join(' · '),reason:'Correspondência no histórico de solicitações enviado em '+fmtDate(database.asOf)+'.',details:[['Número da solicitação',r.number],['Obra',r.workCode+' · '+r.work],['Data',r.date?fmtDate(r.date):'Não informada'],['Solicitante',r.requester],['Observação original da solicitação',(r.observations||[]).join('\n\n')],['Itens da solicitação',r.items.map(i=>i.c+' · '+i.d+' · '+i.detail+' · Unidade: '+i.unit+' · Pendente: '+i.pending+' · Atendida: '+i.fulfilled+' · '+i.status+' · linha '+i.row+(i.official?'':' · Código histórico fora da tabela geral atual')).join('\n')],['Pedidos associados',r.orders.length?r.orders.map(o=>'Pedido '+o.number+' · fornecedor '+o.supplier+' · '+o.status+' · '+o.source+' · linha '+o.row).join('\n'):'Nenhum vínculo comprovado nos painéis enviados'],['Origem',database.source+' · posições e unidades preservadas. Não somar linhas de unidades diferentes. Nenhuma alteração é enviada ao Sienge.']]}));
+  };
+  [...new Map(records.map(r=>[r.workCode,r.work])).entries()].sort((a,b)=>a[1].localeCompare(b[1],'pt-BR')).forEach(([id,name])=>{const o=document.createElement('option');o.value=id;o.textContent=name;fields.work.append(o);});
+  [...new Set(records.flatMap(r=>r.items.map(i=>i.status)))].sort().forEach(value=>{const o=document.createElement('option');o.value=value;o.textContent=value;fields.status.append(o);});
+  let limit=30;function render(){
+    const found=filtered(fields.query.value,fields.work.value,fields.status.value,fields.observation.value);
+    q('requestSummary').textContent=!database?'Consulta ainda não ativada: o administrador precisa aplicar a carga privada dos relatórios.':found.length.toLocaleString('pt-BR')+' solicitações encontradas · '+records.length.toLocaleString('pt-BR')+' no histórico · mostrando até '+limit+'. Abra uma solicitação para conferir os itens e pedidos. Quantidades são as do relatório; não representam saldo físico de estoque.';
+    q('requestRows').innerHTML=found.slice(0,limit).map(r=>'<details class="assistant-board-card" style="margin:10px 0"><summary><strong>SC '+safe(r.number)+'</strong> · '+safe(r.work)+' · '+safe(r.date?fmtDate(r.date):'Sem data')+' · '+r.items.length+' linhas</summary><p>Solicitante: '+safe(r.requester)+'</p><p><strong>Observação original:</strong> '+safe((r.observations||[]).join(' | ')||'Não informada')+'</p><div class="table-wrap"><table class="table"><thead><tr><th>Insumo / detalhe</th><th>Unidade</th><th>Pendente</th><th>Atendida</th><th>Situação / autorização</th><th>Linha da fonte</th></tr></thead><tbody>'+r.items.map(i=>'<tr><td>'+safe(i.c+' · '+i.d)+'<div class="small muted">'+safe([i.detail,i.brand].filter(Boolean).join(' · '))+(i.official?'':' · Código histórico fora da tabela geral atual')+'</div></td><td>'+safe(i.unit)+'</td><td>'+safe(i.pending)+'</td><td>'+safe(i.fulfilled)+'</td><td>'+safe(i.status)+' · '+safe(i.authorization)+'</td><td>'+safe(i.row)+'</td></tr>').join('')+'</tbody></table></div><p>'+safe(database.source)+'</p><p>Pedidos comprovados nos painéis: '+(r.orders.length?r.orders.map(o=>safe(o.number+' · fornecedor '+o.supplier+' · '+o.status+' · '+o.source+' · linha '+o.row)).join('<br>'):'Nenhum vínculo encontrado no conjunto enviado.')+'</p></details>').join('');
+    q('requestMore').hidden=found.length<=limit;
+  }
+  q('requestSearch').addEventListener('click',()=>{limit=30;render();});[fields.query,fields.observation].forEach(field=>field.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();limit=30;render();}}));
+  [fields.work,fields.status].forEach(field=>field.addEventListener('change',()=>{limit=30;render();}));q('requestMore').addEventListener('click',()=>{limit+=30;render();});q('requestClear').addEventListener('click',()=>{fields.query.value='';fields.observation.value='';fields.work.value='';fields.status.value='';limit=30;render();});render();
+})();

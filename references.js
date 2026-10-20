@@ -4,7 +4,7 @@
  const normal=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
  const stop=new Set(['de','da','do','dos','das','com','para','em','um','uma','tipo','por','the','and']);
  const tokens=x=>normal(x).split(' ').filter(t=>t.length>2&&!stop.has(t));
- const catalog=[...catalogItems.map(x=>({...x,_type:'Material / insumo'})),...catalogServices.map(x=>({...x,_type:'Mão de obra / serviço'}))];
+ const catalog=catalogItems.map(x=>({...x,_type:x.laborEligible?'Mão de obra / serviço':'Material / insumo'}));
  let proposals=LupemaCloud.read('lupemaReferenceProposalsV1',[]);
  const groups=[...new Set(catalog.map(x=>x.g||x.group||x.stage).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
  q('refGroupOptions').innerHTML=groups.map(x=>'<option value="'+safe(x)+'"></option>').join('');
@@ -12,7 +12,7 @@
  function find(){const term=q('refTerm').value.trim();if(!term){q('refSummary').textContent='Para pesquisar pela imagem, use o Google Lens. Após identificar o produto, informe a descrição para comparar com a base Lupema.';q('refMatches').innerHTML='';return}
  const list=catalog.map(x=>({x,rank:score(x,term)})).filter(z=>z.rank>=25).sort((a,b)=>b.rank-a.rank).slice(0,25);
  q('refSummary').textContent=list.length?`${list.length} correspondência(s) sugerida(s) entre os resultados mais próximos. Verifique unidade, dimensões, composição e aplicação antes de confirmar.`:'Nenhuma correspondência textual relevante. Isso não comprova que o insumo inexiste; revise sinônimos e detalhes.';
- q('refMatches').innerHTML=list.map(({x,rank})=>`<div style="padding:12px 4px;border-bottom:1px solid #dce2df"><b>${safe(x.c||x.code||'Sem código')} — ${safe(x.d||x.name||'')}</b> <span class="badge">${rank} pontos de similaridade textual</span><div class="small muted">${safe(x._type)} · ${safe(x.u||'Unidade não informada')} · ${safe(x.g||x.group||x.stage||'Grupo não informado')}</div><button class="btn" type="button" data-ref-code="${safe(x.c||x.code||'')}" data-ref-type="${safe(x._type)}">Usar como referência de nomenclatura</button></div>`).join('');
+ q('refMatches').innerHTML=list.map(({x,rank})=>`<div style="padding:12px 4px;border-bottom:1px solid #dce2df"><b>${safe(x.c||x.code||'Sem código')} — ${safe(x.d||x.name||'')}</b> <span class="badge">${rank} pontos de similaridade textual</span><div class="small muted">${safe(x._type)} · ${safe(x.unit||x.u||'Unidade não informada')} · ${safe(x.g||x.group||x.stage||'Grupo não informado')}</div><button class="btn" type="button" data-ref-code="${safe(x.c||x.code||'')}" data-ref-type="${safe(x._type)}">Usar como referência de nomenclatura</button></div>`).join('');
  if(!q('refProposedName').value)q('refProposedName').value=term;
  }
  q('refSearch').addEventListener('click',find);

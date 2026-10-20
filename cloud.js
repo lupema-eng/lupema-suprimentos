@@ -242,7 +242,7 @@
       if (expected.some(id => !base.some(row => row.chave === id))) throw Error('A base inicial ainda não foi carregada. Solicite a ativação ao responsável.');
       base.forEach(row => { if (expected.includes(row.chave)) $(row.chave).textContent = JSON.stringify(row.conteudo); });
       store.hydrate(await fetchRecords());
-      await loadScript('main.js'); await loadScript('references.js'); await loadScript('usage.js'); await loadScript('knowledge.js'); await loadScript('assistant.js'); await loadScript('assistant-board.js');
+      await loadScript('main.js'); await loadScript('references.js'); await loadScript('usage.js'); await loadScript('knowledge.js'); await loadScript('requests.js'); await loadScript('assistant.js'); await loadScript('assistant-board.js'); await loadScript('data-status.js');
       started = true;
       applyAccessMode();
       document.body.classList.remove('lupema-locked'); gate.hidden = true;

@@ -11,13 +11,14 @@
       return {query:subject||previous?.query||'',scope:/servico|mao de obra/.test(clean)||previous?.scope==='services'?'services':'items',location:'',intent:'classification'};
     }
     const contractIntent=/\bcontratos?\b/.test(clean),itemIntent=/\binsumos?\b|\bmateriais?\b/.test(clean);
-    let scope=contractIntent&&itemIntent?'all':contractIntent?'contracts':/prospectad|novos fornecedores/.test(clean)?'leads':/fornecedor|fornecedores|cnpj|cpf/.test(clean)?'suppliers':/mao de obra|servico|servicos/.test(clean)?'services':/insumo|insumos|material|materiais|equipamento|ferramenta/.test(clean)?'items':'all';
+    const requestIntent=/\b(?:solicitacoes?|solicitacao)(?: de compra)?\b|\bsc\s*\d+/.test(clean);
+    let scope=requestIntent?'requests':contractIntent&&itemIntent?'all':contractIntent?'contracts':/prospectad|novos fornecedores/.test(clean)?'leads':/fornecedor|fornecedores|cnpj|cpf/.test(clean)?'suppliers':/mao de obra|servico|servicos/.test(clean)?'services':/insumo|insumos|material|materiais|equipamento|ferramenta/.test(clean)?'items':'all';
     if(scope==='services'&&/\b(?:realizar|executar|execucao|vou|irei|preciso|quero|gostaria)\b/.test(clean)&&!/\b(?:somente|apenas|so)\b/.test(clean))scope='all';
     const selection=clean.match(/\b(?:insumos?|materiais?|fornecedores?|contratos?|servicos?)\b(?:\s*(?:,|e)\s*(?:insumos?|materiais?|fornecedores?|contratos?|servicos?)\b)+/);
     const scopes=selection?[...new Set((selection[0].match(/[a-z]+/g)||[]).filter(t=>t!=='e').map(t=>/^contrato/.test(t)?'contracts':/^fornecedor/.test(t)?'suppliers':/^servico/.test(t)?'services':'items'))]:null;
     if(scopes)scope='all';
     const context={};
-    if(/\b(?:realizar|executar|execucao|vou|irei|pavimento|andar|subsolo|obra|empreendimento)\b/.test(clean)){
+    if(requestIntent||/\b(?:realizar|executar|execucao|vou|irei|pavimento|andar|subsolo|obra|empreendimento)\b/.test(clean)){
       const names=[...new Set(workNames)].sort((a,b)=>b.length-a.length);
       for(const name of names){
         const words=normalize(name).match(/[a-z0-9]+/g)||[];if(!words.length)continue;
@@ -33,13 +34,13 @@
     let value=locationMatch?clean.slice(0,locationMatch.index):clean;
     // Keep the requested subject before conversational purpose clauses.
     value=value.split(/\bpara (?:a )?(?:realizacao|realizar|aplicacao|aplicar|contratar|contratacao)\b/)[0];
-    value=value.replace(/\b(?:mao de obra|novos fornecedores|fornecedores|fornecedor|insumos|insumo|materiais|material|servicos|servico|cnpj|cpf|prospectados|prospectado|contratos|contrato)\b/g,' ');
+    value=value.replace(/\b(?:solicitacoes de compras|solicitacoes de compra|solicitacao de compras|solicitacao de compra|solicitacoes|solicitacao|observacoes|observacao|sc|numero|realizadas|realizada|ja|mao de obra|novos fornecedores|fornecedores|fornecedor|insumos|insumo|materiais|material|servicos|servico|cnpj|cpf|prospectados|prospectado|contratos|contrato)\b/g,' ');
     let terms=(value.match(/[a-z0-9]+/g)||[]).filter(t=>!stop.has(t)).join(' ');
     const following=!terms&&!!previous?.query;
     if(!terms&&previous?.query){terms=previous.query;if(scope==='all')scope=previous.scope;}
     // Location-only follow-ups keep the subject and supplier scope.
     if(location&&scope==='all')scope=previous?.scope==='leads'?'leads':'suppliers';
-    return {query:terms,scope,location:location||(following&&previous?.location)||'',...(scopes?{scopes}:following&&scope==='all'&&previous?.scopes?{scopes:previous.scopes}:{}),...(Object.keys(context).length?{context}:following&&previous?.context?{context:previous.context}:{})};
+    return {query:terms,scope,...(requestIntent&&/^\d+$/.test(terms)&&! /\binsumo/.test(clean)?{requestNumber:terms}:{}),location:location||(following&&previous?.location)||'',...(scopes?{scopes}:following&&scope==='all'&&previous?.scopes?{scopes:previous.scopes}:{}),...(Object.keys(context).length?{context}:following&&previous?.context?{context:previous.context}:{})};
   }
   function externalLinks(term){const q=encodeURIComponent(String(term||'').trim().slice(0,250));return [{label:'Google',url:'https://www.google.com/search?q='+q},{label:'Google Imagens',url:'https://www.google.com/search?tbm=isch&q='+q},{label:'Google Maps',url:'https://www.google.com/maps/search/?api=1&query='+q},{label:'Google Lens (imagem)',url:'https://lens.google.com/'}];}
   function speechText(text){
@@ -56,7 +57,7 @@
   const panel=document.getElementById('view-assistant');if(!panel)return;
   const input=document.getElementById('assistantInput'),log=document.getElementById('assistantLog'),status=document.getElementById('assistantStatus'),mascot=document.getElementById('assistantMascot');
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const labels={items:'Insumos',services:'Serviços / mão de obra',suppliers:'Fornecedores da base',leads:'Fornecedores prospectados',contracts:'Contratos semelhantes',needs:'Necessidades',references:'Referências salvas'};
+  const labels={items:'Insumos',services:'Serviços / mão de obra',suppliers:'Fornecedores da base',leads:'Fornecedores prospectados',contracts:'Contratos semelhantes',needs:'Necessidades',references:'Referências salvas',requests:'Solicitações de compra'};
   let previous=null,turn=0,lastAnswer='',lastTopic=null,animation=null,animationEnd=null,speaking=false,voiceRun=0,currentUtterance=null,lastVoiceRecords=[];
   const reduceMotion=root.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const voiceButton=document.getElementById('assistantVoice');
@@ -197,6 +198,7 @@
       if(request.intent==='classification'){classification(request);return;}
       if(showKnowledge(text))return;
       if(request.help||!request.query){message('Diga o nome ou código do insumo, nome do fornecedor ou CNPJ. Para refinar, escreva “somente insumos”, “e os fornecedores?” “em São Paulo” ou “contratos semelhantes”. Para dúvidas técnicas, experimente “O que é alvenaria estrutural?”. Uso os registros disponíveis na base, sem consultar preços ou estoque em tempo real.');status.textContent='Qual insumo ou fornecedor você procura?';return;}
+      if(request.scope==='requests'&&!root.LupemaAssistantDataStatus?.().sourceAudit?.purchaseRequestSearchIntegrated){message('A consulta de solicitações ainda não está ativada nesta base. O administrador precisa aplicar a carga privada dos relatórios e entrar novamente.');status.textContent='Carga de solicitações pendente';return;}
       previous=request;
       const records=root.LupemaAssistantSearch(request);
       const subject=`Busca: “${request.query}”${request.location?' · Localidade: '+request.location:''}`;
@@ -211,15 +213,15 @@
         const p=document.createElement('p');p.className='assistant-counts';p.textContent=counts;node.append(p);results(node,records);
       }
       const providers=records.filter(r=>['suppliers','leads'].includes(r.kind));
-      const membership=document.createElement('p');membership.className='assistant-membership';membership.textContent=providers.length?providers.length+' fornecedor(es) da base ou prospectados associados à busca. Para confirmar uma empresa, use a conferência por nome/CNPJ acima.':'Nenhum fornecedor associado a estes termos foi localizado na base ou nos prospectados. Para conferir uma empresa específica, use nome/CNPJ acima.';node.append(membership);
+      const membership=document.createElement('p');membership.className='assistant-membership';membership.textContent=providers.length?providers.length+' fornecedor(es) da base ou prospectados associados à busca. Para confirmar uma empresa, use a conferência por nome/CNPJ acima.':'Nenhum fornecedor associado a estes termos foi localizado na base ou nos prospectados. Para conferir uma empresa específica, use nome/CNPJ acima.';if(request.scope!=='requests')node.append(membership);
       const dataStatus=root.LupemaAssistantDataStatus?.();
       if(dataStatus){
         const note=document.createElement('p');note.className='assistant-counts';
         const date=String(dataStatus.supplierGeneratedAt||'').slice(0,10);const formatted=/^\d{4}-\d{2}-\d{2}$/.test(date)?date.split('-').reverse().join('/'):'';
-        note.textContent='Fontes: tabela geral de insumos, cadastro de fornecedores e histórico de contratos importados'+(formatted?'. Cadastro original de fornecedores gerado em '+formatted:'')+'. Alterações da equipe são lidas da base compartilhada. Esta consulta não atualiza o Sienge.';
+        note.textContent='Fontes: tabela geral de insumos, cadastro de fornecedores e histórico de contratos importados'+(formatted?'. Cadastro de fornecedores gerado em '+formatted:'')+(dataStatus.sourceAudit?.purchaseRequestSearchIntegrated?'. Solicitações de compra e vínculos de pedidos: relatórios enviados em 20/10/2026':'')+'. Alterações da equipe são lidas da base compartilhada. Esta consulta não atualiza o Sienge.';
         node.append(note);
       }
-      externalSearch(node,[request.query,request.location].filter(Boolean).join(' '));
+      if(request.scope!=='requests')externalSearch(node,[request.query,request.location].filter(Boolean).join(' '));
       status.textContent=records.length?'Resultados encontrados':'Vamos ajustar a busca?';mascot.src=records.length?'./lupinho-fala-1.webp':'./lupinho-ola.webp';
     }catch(error){message('Não consegui concluir a consulta. Tente novamente. Se continuar, informe a equipe técnica.');status.textContent='Consulta interrompida';}
     finally{log.lastElementChild?.scrollIntoView?.({behavior:'smooth',block:'nearest'});input.focus();}
