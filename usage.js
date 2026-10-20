@@ -28,7 +28,7 @@
     const ids = new Set(users.map(u => u.id));
     const within = r => { const d = day(r.at || r.createdAt || r.date); return ids.has(r.userId) && d && d >= filter.start && d <= filter.end; };
     const unique = rows => [...new Map((rows || []).filter(r => r && r.id).map(r => [r.id, r])).values()];
-    const accesses = unique(data.accesses).filter(within), uses = unique(data.uses).filter(within), feedbacks = unique(data.feedbacks).filter(within);
+    const accesses = unique(data.accesses).filter(within), uses = unique(data.uses).filter(within), feedbacks = unique(data.feedbacks).filter(r=>r.type!=='assistant-notice').filter(within);
     const prospectRows=prospectStats(data.prospects,members,filter);
     const prospectActivities=prospectRows.filter(r=>ids.has(r.createdBy)).map(r=>({id:r.id,userId:r.createdBy,at:r.createdAt}));
     const all = [...accesses, ...uses, ...feedbacks, ...prospectActivities];
@@ -67,7 +67,7 @@
       ...uses.map(r=>({id:'uses/'+r.id,userId:r.userId,at:r.createdAt||r.date,view:'usage',kind:'use',record:r})),
       ...feedbacks.map(r=>({id:'feedbacks/'+r.id,userId:r.userId,at:r.at,view:r.panel,kind:'feedback',record:r}))
     ].sort((a,b)=>String(b.at).localeCompare(String(a.at)));
-    const firstRecorded = [...unique(data.accesses),...unique(data.uses),...unique(data.feedbacks),...prospectActivities].filter(r=>ids.has(r.userId)).map(r=>day(r.at||r.createdAt||r.date)).filter(Boolean).sort()[0] || '';
+    const firstRecorded = [...unique(data.accesses),...unique(data.uses),...unique(data.feedbacks).filter(r=>r.type!=='assistant-notice'),...prospectActivities].filter(r=>ids.has(r.userId)).map(r=>day(r.at||r.createdAt||r.date)).filter(Boolean).sort()[0] || '';
     return {prospectRows, prospectCount:prospectRows.length, events, firstRecorded, trend, grain, rows, enabled: users.length, active: active.size, adoption: users.length ? active.size / users.length * 100 : null,
       recurring: rows.filter(u => u.recurring).length, visits: accesses.filter(r => r.kind !== 'search').length,
       searches: accesses.filter(r => r.kind === 'search').length, uses: uses.length, feedbacks: feedbacks.length,
@@ -109,6 +109,7 @@
   const today = () => new Date().toLocaleDateString('en-CA', {timeZone: 'America/Sao_Paulo'});
   async function save(options) { await LupemaCloud.write(KEY, data, options); }
   function render() {
+    const feedbackRows=data.feedbacks.filter(r=>r.type!=='assistant-notice');
     data.users = LupemaCloud.members;
     const me = data.users.find(row => row.id === current);
     const selectedSupplier = $('usageSupplier').value;
@@ -126,7 +127,7 @@
     $('usageUsersCount').textContent = data.users.length;
     $('usageAccessCount').textContent = data.accesses.length;
     $('usageUseCount').textContent = data.uses.length;
-    $('usageFeedbackCount').textContent = data.feedbacks.length;
+    $('usageFeedbackCount').textContent = feedbackRows.length;
     renderMetrics();
     const name = id => data.users.find(row => row.id === id)?.name || 'Usuário histórico';
     const remove = (kind, row) => row.userId === current || LupemaCloud.role === 'admin' ?
@@ -135,14 +136,14 @@
       const accesses = data.accesses.filter(x => x.userId === row.id);
       return '<tr><td><b>' + esc(row.name) + '</b><div class="small muted">' + esc(row.dept) + ' · ' + esc(row.work) +
         '</div><div class="small muted">' + esc(row.email) + ' · ' + esc(row.phone) + '</div></td><td>' + accesses.length +
-        '</td><td>' + data.uses.filter(x => x.userId === row.id).length + '</td><td>' + data.feedbacks.filter(x => x.userId === row.id).length +
+        '</td><td>' + data.uses.filter(x => x.userId === row.id).length + '</td><td>' + feedbackRows.filter(x => x.userId === row.id).length +
         '</td><td>' + esc(accesses.length ? new Date(accesses[accesses.length - 1].at).toLocaleString('pt-BR') : '—') + '</td></tr>';
     }).join('');
     $('usageUseRows').innerHTML = data.uses.slice().reverse().map(row => '<tr><td>' + esc(row.date) +
       '<div class="small muted">' + esc(name(row.userId)) + '</div></td><td>' + esc(row.supplier) +
       '<div class="small muted">' + esc(row.document) + '</div></td><td>' + esc(row.stage) + ' · ' + esc(row.situation) +
       '</td><td>' + esc(row.work || '—') + '<div class="small muted">' + esc(row.number) + '</div></td><td>' + remove('uses', row) + '</td></tr>').join('') || '<tr><td colspan="5">Nenhum registro de utilização.</td></tr>';
-    $('usageFeedbackRows').innerHTML = data.feedbacks.slice().reverse().map(row => '<tr><td>' +
+    $('usageFeedbackRows').innerHTML = feedbackRows.slice().reverse().map(row => '<tr><td>' +
       esc(new Date(row.at).toLocaleDateString('pt-BR')) + '<div class="small muted">' + esc(name(row.userId)) +
       '</div></td><td>' + esc(row.panel) + '<div class="small muted">' + esc(row.type) + ' · ' + esc(row.priority) +
       '</div></td><td>' + esc(row.rating || '—') + '</td><td>' + esc(row.text) + '</td><td>' + remove('feedbacks', row) + '</td></tr>').join('') || '<tr><td colspan="5">Nenhum feedback registrado.</td></tr>';

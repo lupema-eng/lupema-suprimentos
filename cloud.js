@@ -167,6 +167,22 @@
         origin:row.dados?.registrationOrigin||'unknown',createdBy:row.criado_por||null,createdAt:row.criado_em||null
       }));
     },
+    // Server-created author identity is authoritative, never a name/role in the JSON payload.
+    get assistantNotices() {
+      return [...store.rows.values()].filter(row=>row.colecao==='lupemaUsageControlV1'&&!row.excluido&&row.dados?.kind==='feedbacks'&&row.dados?.record?.type==='assistant-notice'&&members.some(m=>m.id===row.criado_por&&m.role==='admin')).map(row=>({...structuredClone(row.dados.record),createdBy:row.criado_por,createdByName:members.find(m=>m.id===row.criado_por)?.name||'Administrador',updatedAt:row.atualizado_em||row.criado_em}));
+    },
+    async saveAssistantNotice(notice) {
+      if(cloud.role!=='admin')throw Object.assign(Error('Somente o administrador pode publicar no mural.'),{code:'LUPEMA_ADMIN_ONLY'});
+      await store.queue;
+      if(cloud.role!=='admin')throw Error('Perfil administrativo não confirmado.');
+      const value=store.get('lupemaUsageControlV1',{users:[],accesses:[],uses:[],feedbacks:[]});
+      const old=notice.id?cloud.assistantNotices.find(r=>r.id===notice.id):null;
+      if(notice.id&&!old)throw Error('Informativo não encontrado ou autoria administrativa não confirmada.');
+      const entry={id:old?.id||crypto.randomUUID(),userId:cloud.user.id,at:new Date().toISOString(),panel:'assistant',type:'assistant-notice',notice:{...notice}};
+      delete entry.notice.id;
+      value.feedbacks=value.feedbacks.filter(r=>r.id!==entry.id).concat(entry);
+      await writeMany({lupemaUsageControlV1:value});return entry.id;
+    },
     read(collection, fallback = []) { return store.get(collection, fallback); },
     write(collection, value, options) { return writeMany({[collection]: value}, options); },
     writeMany, refresh, lock: (key, id) => store.lock(key, id), unlock: (key, id) => store.unlock(key, id),
@@ -226,7 +242,7 @@
       if (expected.some(id => !base.some(row => row.chave === id))) throw Error('A base inicial ainda não foi carregada. Solicite a ativação ao responsável.');
       base.forEach(row => { if (expected.includes(row.chave)) $(row.chave).textContent = JSON.stringify(row.conteudo); });
       store.hydrate(await fetchRecords());
-      await loadScript('main.js'); await loadScript('references.js'); await loadScript('usage.js'); await loadScript('knowledge.js'); await loadScript('assistant.js');
+      await loadScript('main.js'); await loadScript('references.js'); await loadScript('usage.js'); await loadScript('knowledge.js'); await loadScript('assistant.js'); await loadScript('assistant-board.js');
       started = true;
       applyAccessMode();
       document.body.classList.remove('lupema-locked'); gate.hidden = true;

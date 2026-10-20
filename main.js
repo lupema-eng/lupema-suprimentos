@@ -428,7 +428,17 @@ window.addEventListener('lupema:changed',e=>{
       const has=(value)=>containsTokens(value,q);
       const locationHas=value=>!location||containsTokens(value,location);
       const rows=[];
-      function supplierCard(s,reason){return {kind:'suppliers',id:String(s.id),title:s.tradeName||s.legalName,subtitle:[s.document,s.city,s.state].filter(Boolean).join(' · '),reason,details:[['Razão social',s.legalName],['Nome fantasia',s.tradeName],['CNPJ / CPF',s.document],['Localidade',[s.city,s.state].filter(Boolean).join(' / ')],['Telefone',s.phone],['E-mail',s.email],['Contato',s.contact],['Representante',s.representative],['Classes cadastradas',s.classes],['Situação',s.status],['Avaliação',s.evaluation],['Origem','Cadastro de fornecedores da base Lupema. Dados históricos não confirmam disponibilidade atual.']]};}
+      const documentIds=new Map();suppliers.forEach(s=>{const doc=digits(s.document);if(doc){if(!documentIds.has(doc))documentIds.set(doc,[]);documentIds.get(doc).push(String(s.id));}});
+      function attachIncidents(card,identifier,document){
+        const ids=new Set([String(identifier),...(documentIds.get(digits(document))||[])]),seen=new Set(),issues=[];
+        ids.forEach(id=>supplierIssues(id).forEach((r,i)=>{const key=r.id||id+'/'+i;if(seen.has(key))return;seen.add(key);issues.push({id:key,status:r.status||'Situação não informada',date:r.date||r.createdAt||'',description:r.description||'Sem descrição',work:r.work||'',author:r.author||''});}));
+        const unresolved=issues.filter(r=>norm(r.status)!=='resolvida').length;
+        card.incidents=issues;card.incidentSummary={total:issues.length,unresolved,resolved:issues.length-unresolved};
+        if(issues.length)card.details.push(['Ocorrências registradas',issues.length+' no total; '+unresolved+' pendente(s).'],['Histórico de ocorrências',issues.map(r=>[r.status,r.date,r.work,r.description,'Responsável: '+r.author].filter(Boolean).join(' · ')).join('\n\n')]);
+        return card;
+      }
+      function supplierCard(s,reason){return attachIncidents({kind:'suppliers',id:String(s.id),title:s.tradeName||s.legalName,subtitle:[s.document,s.city,s.state].filter(Boolean).join(' · '),reason,details:[['Razão social',s.legalName],['Nome fantasia',s.tradeName],['CNPJ / CPF',s.document],['Localidade',[s.city,s.state].filter(Boolean).join(' / ')],['Telefone',s.phone],['E-mail',s.email],['Contato',s.contact],['Representante',s.representative],['Classes cadastradas',s.classes],['Situação',s.status],['Avaliação',s.evaluation],['Origem','Cadastro de fornecedores da base Lupema. Dados históricos não confirmam disponibilidade atual.']]},s.id,s.document);}
+
       const linkedSupplierIds=new Set();
       const matches=catalogItems.concat(catalogServices).filter(x=>has(x._text||[x.c,x.d,x.g,x.syn,x.stage,x.sub].join(' ')));
       const materialMatches=matches.filter(x=>catalogItems.includes(x)&&materialCategories.has(x.cat));
@@ -458,7 +468,7 @@ window.addEventListener('lupema:changed',e=>{
         const linked=(l.linkedItems||[]).map(x=>typeof x==='object'?[x.c,x.d,x.code,x.name].filter(Boolean).join(' '):x).join(' ');
         if(materialLookup&&!has(linked))return;
         if(!has([l.name,l.tradeName,l.document,(l.creditorClasses||[]).join(' '),l.creditorClass,linked,l.segment].join(' '))&&!(digits(q).length>=8&&digits(l.document)===digits(q)))return;
-        rows.push({kind:'leads',id:l.localId||l.id,title:l.tradeName||l.name,subtitle:[l.document,l.location,l.state].filter(Boolean).join(' · '),reason:'Correspondência no cadastro prospectado ou em seus insumos vinculados.',details:[['Razão social',l.name],['Nome fantasia',l.tradeName],['CNPJ / CPF',l.document],['Localidade',[l.location,l.state].filter(Boolean).join(' / ')],['Telefone',l.phone],['E-mail',l.email],['Representante',l.representative],['Classes',(l.creditorClasses||[]).join(' | ')||l.creditorClass],['Insumos vinculados',linked],['Situação',l.status||'Prospectado'],['Sienge',l.siengeRegistration||'Cadastro a conferir'],['Origem','Fornecedor prospectado pela equipe; confira avaliação e documentação antes de contratar.']]});
+        rows.push(attachIncidents({kind:'leads',id:l.localId||l.id,title:l.tradeName||l.name,subtitle:[l.document,l.location,l.state].filter(Boolean).join(' · '),reason:'Correspondência no cadastro prospectado ou em seus insumos vinculados.',details:[['Razão social',l.name],['Nome fantasia',l.tradeName],['CNPJ / CPF',l.document],['Localidade',[l.location,l.state].filter(Boolean).join(' / ')],['Telefone',l.phone],['E-mail',l.email],['Representante',l.representative],['Classes',(l.creditorClasses||[]).join(' | ')||l.creditorClass],['Insumos vinculados',linked],['Situação',l.status||'Prospectado'],['Sienge',l.siengeRegistration||'Cadastro a conferir'],['Origem','Fornecedor prospectado pela equipe; confira avaliação e documentação antes de contratar.']]},l.localId||l.id,l.document));
       });
       if(['all','contracts'].includes(request.scope))contractHistory.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).forEach(c=>{
         if(location&&!locationHas(c.city||supplierById.get(String(c.sid))?.city||''))return;
