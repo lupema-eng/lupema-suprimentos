@@ -40,7 +40,7 @@
     if(!terms&&previous?.query){terms=previous.query;if(scope==='all')scope=previous.scope;}
     // Location-only follow-ups keep the subject and supplier scope.
     if(location&&scope==='all')scope=previous?.scope==='leads'?'leads':'suppliers';
-    return {query:terms,scope,...(requestIntent&&/^\d+$/.test(terms)&&! /\binsumo/.test(clean)?{requestNumber:terms}:{}),location:location||(following&&previous?.location)||'',...(scopes?{scopes}:following&&scope==='all'&&previous?.scopes?{scopes:previous.scopes}:{}),...(Object.keys(context).length?{context}:following&&previous?.context?{context:previous.context}:{})};
+    return {query:terms,scope,...(requestIntent&&/\bobservac/.test(clean)?{requestField:'observation'}:{}),...(requestIntent&&/^\d+$/.test(terms)&&! /\binsumo/.test(clean)?{requestNumber:terms}:{}),location:location||(following&&previous?.location)||'',...(scopes?{scopes}:following&&scope==='all'&&previous?.scopes?{scopes:previous.scopes}:{}),...(Object.keys(context).length?{context}:following&&previous?.context?{context:previous.context}:{})};
   }
   function externalLinks(term){const q=encodeURIComponent(String(term||'').trim().slice(0,250));return [{label:'Google',url:'https://www.google.com/search?q='+q},{label:'Google Imagens',url:'https://www.google.com/search?tbm=isch&q='+q},{label:'Google Maps',url:'https://www.google.com/maps/search/?api=1&query='+q},{label:'Google Lens (imagem)',url:'https://lens.google.com/'}];}
   function speechText(text){
