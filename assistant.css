@@ -4,7 +4,7 @@
 .assistant-host .assistant-eyebrow{color:#e1ee92;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
 .assistant-host h2{font-size:25px;margin:12px 0 8px;color:#fff;line-height:1.2}
 .assistant-host p{font-size:13px;line-height:1.65;color:#e0eae4}
-#assistantMascot{display:block;width:100%;height:285px;object-fit:contain;border-radius:12px;cursor:pointer;margin:18px 0 12px;background:#fff;transition:opacity .2s}
+#assistantMascot{display:block;width:100%;height:285px;object-fit:contain;border-radius:12px;cursor:pointer;margin:18px 0 12px;background:transparent;transition:transform .2s}
 #assistantMascot:focus-visible{outline:3px solid #d8eb59}
 #assistantStatus{display:block;background:#ffffff12;padding:10px 12px;border-radius:8px;font-size:12px;color:#edf5d0}
 .assistant-chat{background:white;border:1px solid #dae3de;border-radius:18px;overflow:hidden;min-width:0}
@@ -27,7 +27,7 @@
 .assistant-compose{border-top:1px solid #dfe7df;padding:18px 22px;background:#fafcf9}
 .assistant-compose label{display:block;font-weight:700;font-size:12px;color:#345441;margin-bottom:8px}
 .assistant-compose-row{display:flex;gap:10px;align-items:stretch}
-#assistantInput{min-height:66px;max-height:150px;resize:vertical;border:1px solid #bed0c1;border-radius:10px;padding:12px;font:14px inherit;flex:1;min-width:0;color:#203e32;background:#fff}
+#assistantInput{min-height:66px;max-height:150px;resize:vertical;border:1px solid #bed0c1;border-radius:10px;padding:12px;font:inherit;font-size:14px;flex:1;min-width:0;color:#203e32;background:#fff}
 #assistantSend{background:#206545;color:#fff;border:0;border-radius:10px;padding:12px 20px;font-weight:700;cursor:pointer}
 .assistant-compose small{display:block;color:#69796d;margin-top:10px;font-size:11px;line-height:1.5}
 #assistantDetail{border:1px solid #c9d8cc;border-radius:16px;padding:24px;max-width:640px;width:calc(100% - 30px);max-height:85vh;overflow:auto;color:#233e2f}
@@ -38,3 +38,7 @@
 @media(prefers-reduced-motion:reduce){#assistantLog{scroll-behavior:auto}#assistantMascot{transition:none}}
 
 .assistant-active .global-search,.assistant-active #topExport{display:none}.assistant-active .topbar{justify-content:flex-end}
+
+.assistant-result-filters{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.assistant-result-filters button{border:1px solid #bad0bc;background:white;border-radius:18px;padding:8px 11px;color:#24573c;font-size:12px;cursor:pointer}.assistant-result-filters button[aria-pressed="true"]{background:#235f40;color:white}.assistant-speaking #assistantMascot{animation:lupinho-speaking .7s ease-in-out infinite alternate;transform-origin:50% 90%}@keyframes lupinho-speaking{from{transform:translateY(0) rotate(-.6deg)}to{transform:translateY(-3px) rotate(.6deg)}}.assistant-knowledge-source{font-size:11px!important;color:#5c6c60}.assistant-knowledge-source a{color:#246842;text-decoration:underline}.assistant-chat-head{flex-wrap:wrap}.assistant-chat-head>div{flex:1;min-width:170px}@media(prefers-reduced-motion:reduce){.assistant-speaking #assistantMascot{animation:none}}
+
+.assistant-supplier-check{margin:16px 22px 0;padding:14px;border:1px solid #dce4cf;background:#f7f9ee;border-radius:10px}.assistant-supplier-check label{display:block;font-size:12px;font-weight:700;color:#34523c;margin-bottom:8px}.assistant-supplier-check>div{display:flex;gap:8px}.assistant-supplier-check input,.assistant-external input{min-width:0;width:100%;border:1px solid #bacbbc;border-radius:7px;padding:10px;font:inherit;font-size:12px}.assistant-supplier-check small{display:block;font-size:10px;color:#697667;margin-top:7px}.assistant-external{border-top:1px solid #d2ded3;margin-top:16px;padding-top:13px}.assistant-external>strong{font-size:13px}.assistant-external>p,.assistant-membership{font-size:12px!important;color:#536e5a}.assistant-external input{background:white}.assistant-result-filters a{display:inline-block;border:1px solid #bad0bc;background:#fff;border-radius:18px;padding:8px 11px;font-size:12px;color:#24573c;text-decoration:none}.assistant-result-filters a:hover{border-color:#326a49}@media(max-width:760px){.assistant-supplier-check{margin:14px}.assistant-supplier-check>div{flex-wrap:wrap}}
