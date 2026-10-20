@@ -431,6 +431,10 @@ window.addEventListener('lupema:changed',e=>{
       function supplierCard(s,reason){return {kind:'suppliers',id:String(s.id),title:s.tradeName||s.legalName,subtitle:[s.document,s.city,s.state].filter(Boolean).join(' · '),reason,details:[['Razão social',s.legalName],['Nome fantasia',s.tradeName],['CNPJ / CPF',s.document],['Localidade',[s.city,s.state].filter(Boolean).join(' / ')],['Telefone',s.phone],['E-mail',s.email],['Contato',s.contact],['Representante',s.representative],['Classes cadastradas',s.classes],['Situação',s.status],['Avaliação',s.evaluation],['Origem','Cadastro de fornecedores da base Lupema. Dados históricos não confirmam disponibilidade atual.']]};}
       const linkedSupplierIds=new Set();
       const matches=catalogItems.concat(catalogServices).filter(x=>has(x._text||[x.c,x.d,x.g,x.syn,x.stage,x.sub].join(' ')));
+      const materialMatches=matches.filter(x=>catalogItems.includes(x)&&materialCategories.has(x.cat));
+      const materialLookup=materialMatches.length>0&&digits(q).length<8;
+      const purchaseEvidence=new Map();
+      materialMatches.forEach(item=>(PO_LINKS[String(item.c)]||[]).forEach(([sid])=>{const id=String(sid);if(!purchaseEvidence.has(id))purchaseEvidence.set(id,[]);purchaseEvidence.get(id).push(item.c+' · '+item.d);}));
       matches.forEach(x=>{
         const isCatalogItem=catalogItems.includes(x);
         const ids=[...new Set([...(x.sids||[]),...(isCatalogItem?(PO_LINKS[String(x.c)]||[]):[]).map(r=>r[0])].map(String))];
@@ -444,13 +448,15 @@ window.addEventListener('lupema:changed',e=>{
       if(['all','suppliers'].includes(request.scope))suppliers.forEach(s=>{
         if(!locationHas([s.city,s.state].filter(Boolean).join(' ')))return;
         const direct=has([s.legalName,s.tradeName,s.document,s.classes,s.labor?.services].join(' '));
-        const historical=linkedSupplierIds.has(String(s.id))||[...(supplierInsumoIndex.get(String(s.id))||[])].some(has);
+        const evidence=purchaseEvidence.get(String(s.id))||[];
+        const historical=materialLookup?evidence.length>0:linkedSupplierIds.has(String(s.id))||[...(supplierInsumoIndex.get(String(s.id))||[])].some(has);
         const documentMatch=digits(q).length>=8&&digits(s.document)===digits(q);
-        if(direct||historical||documentMatch)rows.push(supplierCard(s,historical?'Vínculo histórico com insumo / serviço correspondente.':'Correspondência no nome, documento, classe ou serviço cadastrado.'));
+        if((materialLookup?historical:direct||historical)||documentMatch){const card=supplierCard(s,evidence.length?'Vínculo em pedidos de compra dos insumos encontrados.':historical?'Vínculo histórico com insumo / serviço correspondente.':'Correspondência no nome, documento, classe ou serviço cadastrado.');if(evidence.length)card.details.push(['Insumos vinculados em pedidos de compra',evidence.join('\n')]);rows.push(card);}
       });
       if(['all','suppliers','leads'].includes(request.scope))leads.forEach(l=>{
         if(!locationHas([l.location,l.state].filter(Boolean).join(' ')))return;
         const linked=(l.linkedItems||[]).map(x=>typeof x==='object'?[x.c,x.d,x.code,x.name].filter(Boolean).join(' '):x).join(' ');
+        if(materialLookup&&!has(linked))return;
         if(!has([l.name,l.tradeName,l.document,(l.creditorClasses||[]).join(' '),l.creditorClass,linked,l.segment].join(' '))&&!(digits(q).length>=8&&digits(l.document)===digits(q)))return;
         rows.push({kind:'leads',id:l.localId||l.id,title:l.tradeName||l.name,subtitle:[l.document,l.location,l.state].filter(Boolean).join(' · '),reason:'Correspondência no cadastro prospectado ou em seus insumos vinculados.',details:[['Razão social',l.name],['Nome fantasia',l.tradeName],['CNPJ / CPF',l.document],['Localidade',[l.location,l.state].filter(Boolean).join(' / ')],['Telefone',l.phone],['E-mail',l.email],['Representante',l.representative],['Classes',(l.creditorClasses||[]).join(' | ')||l.creditorClass],['Insumos vinculados',linked],['Situação',l.status||'Prospectado'],['Sienge',l.siengeRegistration||'Cadastro a conferir'],['Origem','Fornecedor prospectado pela equipe; confira avaliação e documentação antes de contratar.']]});
       });

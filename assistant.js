@@ -31,6 +31,17 @@
   let previous=null,turn=0,lastAnswer='',lastTopic=null,animation=null,animationEnd=null,speaking=false;
   const reduceMotion=root.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const voiceButton=document.getElementById('assistantVoice');
+  const slides=['./lupinho-ola.webp','./lupinho-pensando.webp','./lupinho-fala-1.webp'];
+  let slideIndex=0,slidesPaused=!!reduceMotion;
+  const slidePause=document.getElementById('assistantSlidePause'),slideCount=document.getElementById('assistantSlideCount');
+  slides.concat('./lupinho-fala-2.webp').forEach(src=>{const image=new Image();image.src=src;});
+  function slideControls(){slidePause.textContent=slidesPaused?'▶ Iniciar slides':'Ⅱ Pausar slides';slidePause.setAttribute('aria-pressed',String(slidesPaused));slideCount.textContent=(slideIndex+1)+' / '+slides.length;}
+  function nextSlide(){slideIndex=(slideIndex+1)%slides.length;mascot.src=slides[slideIndex];mascot.classList.remove('assistant-slide-change');void mascot.offsetWidth;mascot.classList.add('assistant-slide-change');slideControls();}
+  slidePause.addEventListener('click',()=>{slidesPaused=!slidesPaused;slideControls();});
+  document.getElementById('assistantSlideNext').addEventListener('click',()=>{stopVoice();nextSlide();});
+  setInterval(()=>{if(slidesPaused||document.hidden||!panel.classList.contains('active')||speaking||animation)return;nextSlide();},4000);
+  slideControls();
+
   function stopTalking(){clearInterval(animation);clearTimeout(animationEnd);animation=null;speaking=false;panel.classList.remove('assistant-speaking');mascot.src='./lupinho-fala-1.webp';voiceButton.textContent='Ouvir resposta';}
   function animate(duration){if(reduceMotion)return;clearInterval(animation);clearTimeout(animationEnd);let frame=false;panel.classList.add('assistant-speaking');animation=setInterval(()=>{frame=!frame;mascot.src=frame?'./lupinho-fala-2.webp':'./lupinho-fala-1.webp';},240);if(duration)animationEnd=setTimeout(stopTalking,duration);}
   function stopVoice(){root.speechSynthesis?.cancel();stopTalking();}
@@ -105,6 +116,7 @@
     if(++turn>20){log.replaceChildren();turn=1;} // Keep this tab's transient history bounded.
     input.value='';message(text,'user');status.textContent='Consultando a base…';mascot.src='./lupinho-pensando.webp';
     try{
+      if(/\b(?:solicitacao|solicitacoes) de compra|\bpedidos?\b|\bcotac(?:ao|oes)\b|\bavaliac(?:ao|oes)\b/.test(normalize(text))){message('A consulta específica de solicitações de compra, pedidos, cotações e avaliações ainda não está integrada ao assistente. Isso não significa que esses registros não existam. Hoje posso pesquisar os cadastros, insumos, serviços, contratos, necessidades e referências já disponíveis.');status.textContent='Consulta aguardando integração';return;}
       if(showKnowledge(text))return;
       const request=parse(text,previous);
       if(request.help||!request.query){message('Diga o nome ou código do insumo, nome do fornecedor ou CNPJ. Para refinar, escreva “somente insumos”, “e os fornecedores?” “em São Paulo” ou “contratos semelhantes”. Para dúvidas técnicas, experimente “O que é alvenaria estrutural?”. Uso os registros disponíveis na base, sem consultar preços ou estoque em tempo real.');status.textContent='Qual insumo ou fornecedor você procura?';return;}
@@ -125,6 +137,13 @@
   }
   document.getElementById('assistantSend').addEventListener('click',()=>send(input.value));
   input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();send(input.value);}});
+  panel.querySelectorAll('[data-assistant-action]').forEach(button=>button.addEventListener('click',()=>{
+    const action=button.dataset.assistantAction;
+    if(action==='check'){document.getElementById('assistantSupplierIdentity').focus();return;}
+    if(action==='external'){stopVoice();const node=message('Digite o termo no campo abaixo e escolha onde pesquisar. A consulta será aberta no serviço externo.');externalSearch(node,input.value.trim());node.querySelector('input').focus();return;}
+    if(action==='technical')input.value='O que é ';
+    input.focus();
+  }));
   panel.querySelectorAll('[data-assistant-prompt]').forEach(b=>b.addEventListener('click',()=>send(b.dataset.assistantPrompt)));
   document.getElementById('assistantClear').addEventListener('click',()=>{turn=0;welcome();input.focus();});
   document.getElementById('assistantDetailClose').addEventListener('click',()=>{const d=document.getElementById('assistantDetail');if(d.close)d.close();else d.removeAttribute('open');});
