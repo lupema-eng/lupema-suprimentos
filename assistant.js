@@ -59,7 +59,7 @@
   function animate(duration){if(reduceMotion)return;clearInterval(animation);clearTimeout(animationEnd);let frame=false;panel.classList.add('assistant-speaking');animation=setInterval(()=>{frame=!frame;mascot.src=frame?'./lupinho-fala-2.webp':'./lupinho-fala-1.webp';},240);if(duration)animationEnd=setTimeout(stopTalking,duration);}
   const voiceChoice=document.getElementById('assistantVoiceChoice'),voiceRate=document.getElementById('assistantVoiceRate'),voicePause=document.getElementById('assistantVoicePause'),voiceStop=document.getElementById('assistantVoiceStop');
   function resetVoiceControls(){voicePause.hidden=true;voiceStop.hidden=true;voicePause.textContent='Pausar áudio';}
-  function stopVoice(){voiceRun++;root.speechSynthesis?.cancel();currentUtterance=null;resetVoiceControls();stopTalking();}
+  function stopVoice(){voiceRun++;root.speechSynthesis?.cancel();if(root.speechSynthesis?.paused)root.speechSynthesis.resume();currentUtterance=null;resetVoiceControls();stopTalking();}
   function refreshVoices(){
     const old=voiceChoice.value,voices=localVoices(root.speechSynthesis?.getVoices()||[]);voiceChoice.replaceChildren();
     voices.forEach((v,i)=>{const o=document.createElement('option');o.value=String(i);o.textContent=v.name+' · '+v.lang;voiceChoice.append(o);});
