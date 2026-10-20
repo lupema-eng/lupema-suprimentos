@@ -130,6 +130,13 @@
     const dialog=document.getElementById('assistantDetail');document.getElementById('assistantDetailTitle').textContent=record.title;
     document.getElementById('assistantDetailBody').innerHTML=`${incidentBanner(record)}<p class="assistant-source">${esc(labels[record.kind])}</p><dl>${record.details.filter(x=>x[1]!==undefined&&x[1]!==null&&String(x[1]).trim()).map(([key,value])=>`<div><dt>${esc(key)}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>${record.suppliers?.length?'<h3>Fornecedores vinculados ao registro</h3><p>Vínculos registrados na base; confirme o atendimento atual.</p>':''}`;
     (record.suppliers||[]).forEach(s=>{const b=document.createElement('button');b.type='button';b.className='btn assistant-linked';b.textContent=s.title+(s.incidentSummary?.total?' — ⚠ '+s.incidentSummary.total+' ocorrência(s), '+s.incidentSummary.unresolved+' pendente(s)':'')+' — ver contato';if(s.incidentSummary?.total)b.classList.add('has-incident');b.addEventListener('click',()=>detail(s));document.getElementById('assistantDetailBody').append(b);});
+    if(record.historicalSuppliers?.length){
+      const body=document.getElementById('assistantDetailBody'),heading=document.createElement('h3'),note=document.createElement('p');
+      heading.textContent='Outros cadastros ativos em vínculos históricos ('+record.historicalSuppliers.length+')';
+      note.textContent='Você pode consultar todos os cadastros abaixo. Os vínculos abaixo incluem contratos rescindidos, cancelados ou com restrição de autorização. Um contrato rescindido não torna o fornecedor inativo nem representa, por si só, uma ocorrência negativa.';
+      body.append(heading,note);
+      record.historicalSuppliers.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='btn assistant-linked';b.textContent=s.title+' — histórico — ver cadastro'+(s.incidentSummary?.total?' — ⚠ '+s.incidentSummary.total+' ocorrência(s)':'');if(s.incidentSummary?.total)b.classList.add('has-incident');b.addEventListener('click',()=>detail(s));body.append(b);});
+    }
     if(!dialog.open){if(dialog.showModal)dialog.showModal();else dialog.setAttribute('open','');}
   }
   function results(node,records){
