@@ -442,7 +442,22 @@ window.addEventListener('lupema:changed',e=>{
       const linkedSupplierIds=new Set();
       const matches=catalogItems.concat(catalogServices).filter(x=>has(x._text||[x.c,x.d,x.g,x.syn,x.stage,x.sub].join(' ')));
       const materialMatches=matches.filter(x=>catalogItems.includes(x)&&materialCategories.has(x.cat));
-      const materialLookup=materialMatches.length>0&&digits(q).length<8;
+      // An area such as hidráulica also occurs in material groups. A documented
+      // service description must remain searchable without weakening material evidence.
+      const queryWords=norm(q).match(/[a-z0-9]+/g)||[];
+      const materialSubject=materialMatches.some(x=>has((norm(x.d).match(/[a-z0-9]+/g)||[]).slice(0,queryWords.length).join(' ')));
+      const serviceMatches=matches.filter(x=>(!catalogItems.includes(x)||!materialCategories.has(x.cat))&&has(x.d));
+      const serviceSubject=serviceMatches.some(x=>catalogItems.includes(x)&&/^(?:mo|mao de obra)\b/.test(norm(x.d))&&has((norm(x.d).replace(/^(?:mo|mao de obra)\s*[-:]?\s*/,'').match(/[a-z0-9]+/g)||[]).slice(0,queryWords.length).join(' ')));
+      const serviceLookup=serviceMatches.length>0&&(!materialSubject||serviceSubject);
+      const materialLookup=materialMatches.length>0&&!serviceLookup&&digits(q).length<8;
+      const contractFields=c=>[['Escopo',c.scope],['Objeto',c.objectFull],['Itens',(c.items||[]).map(i=>[i.c,i.d,i.g].filter(Boolean).join(' ')).join(' | ')],['Classificação',[c.class,c.groups].filter(Boolean).join(' ')],['Fornecedor',c.sn],['Número',c.n],['Obra',c.w]];
+      const contractEvidence=new Map();
+      if(!materialLookup)contractHistory.forEach(c=>{
+        const reasons=contractFields(c).slice(0,4).filter(([,value])=>value&&has(value)).map(([label])=>label);
+        if(!reasons.length)return;
+        const id=String(c.sid);if(!contractEvidence.has(id))contractEvidence.set(id,[]);
+        contractEvidence.get(id).push('Contrato '+c.n+' · '+c.w+' · '+reasons.join(', '));
+      });
       const purchaseEvidence=new Map();
       materialMatches.forEach(item=>(PO_LINKS[String(item.c)]||[]).forEach(([sid])=>{const id=String(sid);if(!purchaseEvidence.has(id))purchaseEvidence.set(id,[]);purchaseEvidence.get(id).push(item.c+' · '+item.d);}));
       matches.forEach(x=>{
@@ -459,9 +474,10 @@ window.addEventListener('lupema:changed',e=>{
         if(!locationHas([s.city,s.state].filter(Boolean).join(' ')))return;
         const direct=has([s.legalName,s.tradeName,s.document,s.classes,s.labor?.services].join(' '));
         const evidence=purchaseEvidence.get(String(s.id))||[];
-        const historical=materialLookup?evidence.length>0:linkedSupplierIds.has(String(s.id))||[...(supplierInsumoIndex.get(String(s.id))||[])].some(has);
+        const contractLinks=contractEvidence.get(String(s.id))||[];
+        const historical=materialLookup?evidence.length>0:contractLinks.length>0||linkedSupplierIds.has(String(s.id))||[...(supplierInsumoIndex.get(String(s.id))||[])].some(has);
         const documentMatch=digits(q).length>=8&&digits(s.document)===digits(q);
-        if((materialLookup?historical:direct||historical)||documentMatch){const card=supplierCard(s,evidence.length?'Vínculo em pedidos de compra dos insumos encontrados.':historical?'Vínculo histórico com insumo / serviço correspondente.':'Correspondência no nome, documento, classe ou serviço cadastrado.');if(evidence.length)card.details.push(['Insumos vinculados em pedidos de compra',evidence.join('\n')]);rows.push(card);}
+        if((materialLookup?historical:direct||historical)||documentMatch){const card=supplierCard(s,evidence.length?'Vínculo em pedidos de compra dos insumos encontrados.':contractLinks.length?'Serviço localizado no histórico de contratos. Confira o escopo antes de cotar.':historical?'Vínculo histórico com insumo / serviço correspondente.':'Correspondência no nome, documento, classe ou serviço cadastrado.');if(evidence.length)card.details.push(['Insumos vinculados em pedidos de compra',evidence.join('\n')]);if(contractLinks.length)card.details.push(['Contratos que comprovam a correspondência',contractLinks.join('\n')]);rows.push(card);}
       });
       if(['all','suppliers','leads'].includes(request.scope))leads.forEach(l=>{
         if(!locationHas([l.location,l.state].filter(Boolean).join(' ')))return;
@@ -473,7 +489,7 @@ window.addEventListener('lupema:changed',e=>{
       if(['all','contracts'].includes(request.scope))contractHistory.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).forEach(c=>{
         if(location&&!locationHas(c.city||supplierById.get(String(c.sid))?.city||''))return;
         const itemText=(c.items||[]).map(i=>[i.c,i.d,i.g].filter(Boolean).join(' ')).join(' | ');
-        const fields=[['Escopo',c.scope],['Objeto',c.objectFull],['Itens',itemText],['Classificação',[c.class,c.groups].filter(Boolean).join(' ')],['Fornecedor',c.sn],['Número',c.n],['Obra',c.w]];
+        const fields=contractFields(c);
         const reasons=fields.filter(([,value])=>value&&has(value)).map(([label])=>label);
         if(!reasons.length)return;
         const supplier=supplierById.get(String(c.sid));
