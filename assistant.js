@@ -5,6 +5,11 @@
   function parse(text,previous){
     const clean=normalize(text).trim();
     if(/^(oi|ola|bom dia|boa tarde|boa noite|ajuda|como usar)[!? .]*$/.test(clean))return {help:true};
+    const classificationQuestion=/\b(?:qual|quais|informe|mostrar|mostre|ver|consultar)\b.*\b(?:classe|classificacao|casse|grupo)\b|\b(?:classe|classificacao|casse|grupo)\s+(?:do|de|desse|deste|da|dessa)\b/.test(clean);
+    if(classificationQuestion){
+      const subject=clean.replace(/^.*?\b(?:classe|classificacao|casse|grupo)\b/,'').replace(/\b(?:do|da|de|dos|das|desse|deste|dessa|desta|esse|este|essa|esta|o|a|os|as|insumo|insumos|material|materiais|servico|servicos|pesquisado|pesquisados|pesquisada|pesquisadas|consultado|consultados|anterior|anteriormente|que|eu|me|voce|pesquisei|pesquisou|busquei|procurei|e)\b/g,' ').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+      return {query:subject||previous?.query||'',scope:/servico|mao de obra/.test(clean)||previous?.scope==='services'?'services':'items',location:'',intent:'classification'};
+    }
     const contractIntent=/\bcontratos?\b/.test(clean),itemIntent=/\binsumos?\b|\bmateriais?\b/.test(clean);
     let scope=contractIntent&&itemIntent?'all':contractIntent?'contracts':/prospectad|novos fornecedores/.test(clean)?'leads':/fornecedor|fornecedores|cnpj|cpf/.test(clean)?'suppliers':/mao de obra|servico|servicos/.test(clean)?'services':/insumo|insumos|material|materiais|equipamento|ferramenta/.test(clean)?'items':'all';
     const locationMatch=clean.match(/\b(?:em|na cidade de|no estado de)\s+(.+?)[?.!]*$/);
@@ -61,6 +66,7 @@
   }
   function welcome(){stopVoice();lastTopic=null;previous=null;log.replaceChildren();mascot.src='./lupinho-ola.webp';status.textContent='Pronto para ajudar';message('Olá! O que você precisa para a obra? Sou o Lupinho! Localizo insumos, serviços, fornecedores e contratos semelhantes. Também explico os temas disponíveis na biblioteca técnica. Experimente: “Preciso de cimento” ou “Fornecedor de cimento em São Paulo”.');}
   function detail(record){
+    if(['items','services'].includes(record.kind))previous={query:String(record.id),scope:record.kind,location:''};
     const dialog=document.getElementById('assistantDetail');document.getElementById('assistantDetailTitle').textContent=record.title;
     document.getElementById('assistantDetailBody').innerHTML=`<p class="assistant-source">${esc(labels[record.kind])}</p><dl>${record.details.filter(x=>x[1]!==undefined&&x[1]!==null&&String(x[1]).trim()).map(([key,value])=>`<div><dt>${esc(key)}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>${record.suppliers?.length?'<h3>Fornecedores vinculados ao registro</h3><p>Vínculos registrados na base; confirme o atendimento atual.</p>':''}`;
     (record.suppliers||[]).forEach(s=>{const b=document.createElement('button');b.type='button';b.className='btn assistant-linked';b.textContent=s.title+' — ver contato';b.addEventListener('click',()=>detail(s));document.getElementById('assistantDetailBody').append(b);});
@@ -82,7 +88,7 @@
   }
   function showKnowledge(text){
     const answer=root.LupemaKnowledge?.answer(text,lastTopic);if(!answer)return false;
-    if(answer.unknown){lastTopic=null;const node=message('Esse tema ainda não está disponível na biblioteca técnica. Não vou improvisar uma orientação. Posso pesquisar os registros da base; para isso, informe o nome do insumo, fornecedor ou contrato.');externalSearch(node,text);status.textContent='Tema técnico ainda não cadastrado';return true;}
+    if(answer.unknown){lastTopic=null;const subject=normalize(text).match(/^(?:o que (?:e|significa)|explique(?: sobre)?|fale sobre)\s+(.+?)[?.!]*$/);if(subject)previous=parse(subject[1]);const node=message('Esse tema ainda não está disponível na biblioteca técnica. Não vou improvisar uma orientação. Posso pesquisar os registros da base; para isso, informe o nome do insumo, fornecedor ou contrato.');externalSearch(node,text);status.textContent='Tema técnico ainda não cadastrado';return true;}
     lastTopic=answer.topic;previous={query:'alvenaria estrutural',scope:'all',location:''};
     const node=message(answer.text);const refs=document.createElement('p');refs.className='assistant-knowledge-source';refs.textContent='Conteúdo de referência · Fontes consultadas em 20/10/2026: ';
     answer.sources.forEach(source=>{const a=document.createElement('a');a.href=source.url;a.textContent=source.label;a.target='_blank';a.rel='noopener noreferrer';refs.append(a,document.createTextNode(' '));});node.append(refs);
@@ -110,6 +116,18 @@
   }
   document.getElementById('assistantCheckSupplier').addEventListener('click',()=>checkSupplier(document.getElementById('assistantSupplierIdentity').value));
   document.getElementById('assistantSupplierIdentity').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();checkSupplier(event.target.value);}});
+  function classification(request){
+    if(!request.query){message('De qual insumo você quer saber a classe ou o grupo? Informe o nome ou código.');status.textContent='Informe o insumo';return;}
+    const records=root.LupemaAssistantSearch(request).filter(r=>['items','services'].includes(r.kind));
+    if(!records.length){message('Não localizei o insumo “'+request.query+'” no catálogo. Informe o código ou a descrição para conferir o grupo cadastrado.');status.textContent='Insumo não localizado';return;}
+    previous={query:request.query,scope:request.scope,location:''};
+    const groupOf=r=>r.details.find(([key])=>key==='Grupo / etapa')?.[1]||'Não informado na base';
+    const groups=[...new Set(records.map(groupOf))];
+    const node=message(records.length===1?'O grupo / etapa cadastrado de '+records[0].title+' é: '+groupOf(records[0])+'.':groups.length===1?'Os '+records.length+' insumos encontrados para “'+request.query+'” estão no grupo / etapa: '+groups[0]+'.':'Encontrei '+records.length+' insumos para “'+request.query+'”, com grupos diferentes: '+groups.join(' · ')+'. Confira o código e a descrição abaixo.');
+    const note=document.createElement('p');note.className='assistant-counts';note.textContent='Esta é a classificação do insumo no catálogo. A classe de credor pertence ao cadastro do fornecedor.';node.append(note);
+    results(node,records.map(r=>({...r,subtitle:'Grupo / etapa: '+groupOf(r),reason:'Categoria: '+(r.details.find(([key])=>key==='Categoria')?.[1]||'Não informada na base')})));
+    status.textContent='Grupo do insumo consultado na base';
+  }
   function send(text){
     stopVoice();text=String(text||'').trim().slice(0,400);if(!text)return;
     if(/(?:consta|cadastrad[oa]|existe|verificar|verifique).*(?:base|fornecedor)|fornecedor.*(?:consta|cadastrad[oa]|existe)/i.test(normalize(text))){const identity=text.replace(/^.*?\bfornecedor(?:a)?\s+/i,'').replace(/\s+(?:consta|esta|está|existe|ja|já|e|é)\b.*$/i,'').replace(/[?!.]+$/,'').trim();if(identity&&identity!==text){input.value='';checkSupplier(identity);return;}}
@@ -117,8 +135,9 @@
     input.value='';message(text,'user');status.textContent='Consultando a base…';mascot.src='./lupinho-pensando.webp';
     try{
       if(/\b(?:solicitacao|solicitacoes) de compra|\bpedidos?\b|\bcotac(?:ao|oes)\b|\bavaliac(?:ao|oes)\b/.test(normalize(text))){message('A consulta específica de solicitações de compra, pedidos, cotações e avaliações ainda não está integrada ao assistente. Isso não significa que esses registros não existam. Hoje posso pesquisar os cadastros, insumos, serviços, contratos, necessidades e referências já disponíveis.');status.textContent='Consulta aguardando integração';return;}
-      if(showKnowledge(text))return;
       const request=parse(text,previous);
+      if(request.intent==='classification'){classification(request);return;}
+      if(showKnowledge(text))return;
       if(request.help||!request.query){message('Diga o nome ou código do insumo, nome do fornecedor ou CNPJ. Para refinar, escreva “somente insumos”, “e os fornecedores?” “em São Paulo” ou “contratos semelhantes”. Para dúvidas técnicas, experimente “O que é alvenaria estrutural?”. Uso os registros disponíveis na base, sem consultar preços ou estoque em tempo real.');status.textContent='Qual insumo ou fornecedor você procura?';return;}
       previous=request;
       const records=root.LupemaAssistantSearch(request);
