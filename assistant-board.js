@@ -3,6 +3,7 @@
   'use strict';
   const byId=id=>document.getElementById(id),form=byId('assistantNoticeForm'),admin=byId('assistantBoardAdmin'),manage=byId('assistantBoardManage'),list=byId('assistantNotices'),daily=byId('assistantDaily'),status=byId('assistantNoticeStatus');
   let editing=null,dailyData=null;
+  const displayDate=value=>value.split('-').reverse().join('/');
   const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'America/Sao_Paulo'});
   const safeUrl=value=>{try{const u=new URL(value);return ['https:','http:'].includes(u.protocol)?u.href:null;}catch{return null;}};
   const active=row=>row.notice?.visible!==false&&row.notice?.startDate<=today()&&(!row.notice?.endDate||row.notice.endDate>=today());
@@ -16,7 +17,7 @@
     daily.replaceChildren(el('strong','Conhecimento do dia'));
     if(manual){daily.append(card(manual));return;}
     if(!dailyData){daily.append(el('p','Conteúdo automático indisponível no momento. Os informativos da equipe continuam disponíveis.'));return;}
-    daily.append(el('small',dailyData.publishedOn===today()?'Conteúdo de '+today():'Último conteúdo disponível: '+dailyData.publishedOn),el('h3',dailyData.title),el('p',dailyData.text));
+    daily.append(el('small',dailyData.publishedOn===today()?'Conteúdo de '+displayDate(dailyData.publishedOn):'Último conteúdo disponível: '+displayDate(dailyData.publishedOn)),el('h3',dailyData.title),el('p',dailyData.text));
     (dailyData.sources||[]).forEach(source=>{const url=safeUrl(source.url);if(!url)return;const a=el('a',source.label+' ↗');a.href=url;a.target='_blank';a.rel='noopener noreferrer';daily.append(a);});
     daily.append(el('small','Referência conceitual. Aplicação na obra depende dos projetos e procedimentos aprovados.'));
   }
