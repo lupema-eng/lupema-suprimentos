@@ -457,7 +457,7 @@ window.addEventListener('lupema:changed',e=>{
       function supplierCard(s,reason){return attachIncidents({kind:'suppliers',id:String(s.id),title:s.tradeName||s.legalName,subtitle:[s.document,s.city,s.state].filter(Boolean).join(' · '),reason,details:[['Razão social',s.legalName],['Nome fantasia',s.tradeName],['CNPJ / CPF',s.document],['Localidade',[s.city,s.state].filter(Boolean).join(' / ')],['Telefone',s.phone],['E-mail',s.email],['Contato',s.contact],['Representante',s.representative],['Classes cadastradas',s.classes],['Situação',s.status],['Avaliação',s.evaluation],['Origem','Cadastro de fornecedores da base Lupema. Dados históricos não confirmam disponibilidade atual.']]},s.id,s.document);}
 
       const linkedSupplierIds=new Set();
-      const matches=catalogItems.concat(catalogServices).filter(x=>has(x._text||[x.c,x.d,x.g,x.syn,x.stage,x.sub].join(' ')));
+      const matches=catalogItems.filter(x=>has([x.c,x.d,x.g,x.cat,x.unit].filter(Boolean).join(' '))); // Official general item table only; auxiliary service codes and isolated aliases are not item evidence.
       const materialMatches=matches.filter(x=>catalogItems.includes(x)&&materialCategories.has(x.cat)&&subjectMatches([x.c,x.d].join(' '),q));
       // An area such as hidráulica also occurs in material groups. A documented
       // service description must remain searchable without weakening material evidence.
@@ -489,7 +489,7 @@ window.addEventListener('lupema:changed',e=>{
         if(request.scope!=='all'&&request.scope!==kind)return;
         if(location)return; // A catalog record has no geographic scope; search suppliers for city requests.
         const linked=(subjectMatch?ids:[]).map(id=>supplierById.get(id)).filter(Boolean).map(s=>supplierCard(s,'Vínculo do insumo registrado na base'));
-        rows.push({kind,id:String(x.c),title:x.c+' · '+x.d,subtitle:[x.g||x.stage,x.unit||x.u,x.cat].filter(Boolean).join(' · '),reason:subjectMatch?'Correspondência no objeto principal do registro.':'Referência relacionada ao termo ou grupo. Não comprova o fornecimento do objeto pesquisado.',details:[['Código',x.c],['Descrição',x.d],['Grupo / etapa',x.g||x.stage],['Categoria',x.cat],['Unidade',x.unit||x.u],['Sinônimo cadastrado',x.syn],['Especificação',x.specification],['Fornecedores vinculados',linked.length?String(linked.length):'Nenhum vínculo registrado'],['Origem','Catálogo interno da base Lupema. Não informa estoque ou preço atual.']],suppliers:linked});
+        rows.push({kind,id:String(x.c),title:x.c+' · '+x.d,subtitle:[x.g||x.stage,x.unit||x.u,x.cat].filter(Boolean).join(' · '),reason:subjectMatch?'Correspondência no objeto principal do registro.':'Referência relacionada ao termo ou grupo. Não comprova o fornecimento do objeto pesquisado.',details:[['Código',x.c],['Descrição',x.d],['Grupo / etapa',x.g||x.stage],['Categoria',x.cat],['Unidade',x.unit||x.u],['Sinônimo cadastrado',x.syn],['Especificação',x.specification],['Fornecedores vinculados',linked.length?String(linked.length):'Nenhum vínculo registrado'],['Origem','Tabela geral de insumos da Lupema: código, descrição, grupo, categoria e unidade do cadastro oficial. Não informa estoque ou preço atual.']],suppliers:linked});
       });
       if(['all','suppliers'].includes(request.scope))suppliers.forEach(s=>{
         if(!locationHas([s.city,s.state].filter(Boolean).join(' ')))return;
