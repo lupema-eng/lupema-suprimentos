@@ -2,8 +2,8 @@
   'use strict';
   const normalize=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
   const stop=new Set('eu me voce voces por favor preciso precisamos quero queria gostaria encontre encontrar busca buscar busque pesquisa pesquisar pesquise procura procurar procure mostre mostrar ver localizar localize um uma uns umas o a os as de do da dos das para pra com que tem na no nossa nosso base lupema cadastrado cadastrados cadastrada cadastradas apenas somente so e pelo pela classe classes grupo grupos realizacao realizar aplicacao aplicar semelhante semelhantes relacionado relacionados sobre tambem esses estas estes isso desse dessa dele dela traga trazer tudo informacoes resumo'.split(' '));
-  function parse(text,previous){
-    const clean=normalize(text).trim();
+  function parse(text,previous,workNames=[]){
+    let clean=normalize(text).trim();
     if(/^(oi|ola|bom dia|boa tarde|boa noite|ajuda|como usar)[!? .]*$/.test(clean))return {help:true};
     const classificationQuestion=/\b(?:qual|quais|informe|mostrar|mostre|ver|consultar)\b.*\b(?:classe|classificacao|casse|grupo)\b|\b(?:classe|classificacao|casse|grupo)\s+(?:do|de|desse|deste|da|dessa)\b/.test(clean);
     if(classificationQuestion){
@@ -12,6 +12,18 @@
     }
     const contractIntent=/\bcontratos?\b/.test(clean),itemIntent=/\binsumos?\b|\bmateriais?\b/.test(clean);
     let scope=contractIntent&&itemIntent?'all':contractIntent?'contracts':/prospectad|novos fornecedores/.test(clean)?'leads':/fornecedor|fornecedores|cnpj|cpf/.test(clean)?'suppliers':/mao de obra|servico|servicos/.test(clean)?'services':/insumo|insumos|material|materiais|equipamento|ferramenta/.test(clean)?'items':'all';
+    const context={};
+    if(/\b(?:realizar|executar|execucao|vou|irei|pavimento|andar|subsolo|obra|empreendimento)\b/.test(clean)){
+      const names=[...new Set(workNames)].sort((a,b)=>b.length-a.length);
+      for(const name of names){
+        const words=normalize(name).match(/[a-z0-9]+/g)||[];if(!words.length)continue;
+        const pattern=new RegExp('\\b'+words.join('[\\s-]*')+'\\b','g');
+        if(pattern.test(clean)){context.work=name;clean=clean.replace(pattern,' ');break;}
+      }
+      const areaPattern=/\b(?:pavimento\s+(?:h?tipo|terreo|tecnico|superior|inferior)|\d+\s*(?:o|a)?\s*(?:andar|pavimento|subsolo)|terreo|mezanino|cobertura)\b/g;
+      const areas=clean.match(areaPattern);if(areas){context.area=areas.join(' · ');clean=clean.replace(areaPattern,' ');}
+      clean=clean.replace(/\b(?:vou|irei|executar|execucao|fazer|obra|empreendimento|pavimento)\b/g,' ').replace(/\s+/g,' ').trim().replace(/\b(?:em|no|na|do|da)(?:\s+(?:em|no|na|do|da))*\s*$/,'').trim();
+    }
     const locationMatch=clean.match(/\b(?:em|na cidade de|no estado de)\s+(.+?)[?.!]*$/);
     const location=locationMatch?locationMatch[1].replace(/[?.!]+$/,'').trim():'';
     let value=locationMatch?clean.slice(0,locationMatch.index):clean;
@@ -23,7 +35,7 @@
     if(!terms&&previous?.query){terms=previous.query;if(scope==='all')scope=previous.scope;}
     // Location-only follow-ups keep the subject and supplier scope.
     if(location&&scope==='all')scope=previous?.scope==='leads'?'leads':'suppliers';
-    return {query:terms,scope,location:location||(following&&previous?.location)||''};
+    return {query:terms,scope,location:location||(following&&previous?.location)||'',...(Object.keys(context).length?{context}:following&&previous?.context?{context:previous.context}:{})};
   }
   function externalLinks(term){const q=encodeURIComponent(String(term||'').trim().slice(0,250));return [{label:'Google',url:'https://www.google.com/search?q='+q},{label:'Google Imagens',url:'https://www.google.com/search?tbm=isch&q='+q},{label:'Google Maps',url:'https://www.google.com/maps/search/?api=1&query='+q},{label:'Google Lens (imagem)',url:'https://lens.google.com/'}];}
   function speechText(text){
@@ -177,7 +189,7 @@
     input.value='';message(text,'user');status.textContent='Consultando a base…';mascot.src='./lupinho-pensando.webp';
     try{
       if(/\b(?:solicitacao|solicitacoes) de compra|\bpedidos?\b|\bcotac(?:ao|oes)\b|\bavaliac(?:ao|oes)\b/.test(normalize(text))){message('A consulta específica de solicitações de compra, pedidos, cotações e avaliações ainda não está integrada ao assistente. Isso não significa que esses registros não existam. Hoje posso pesquisar os cadastros, insumos, serviços, contratos, necessidades e referências já disponíveis.');status.textContent='Consulta aguardando integração';return;}
-      const request=parse(text,previous);
+      const request=parse(text,previous,root.LupemaAssistantWorkNames?.()||[]);
       if(request.intent==='classification'){classification(request);return;}
       if(showKnowledge(text))return;
       if(request.help||!request.query){message('Diga o nome ou código do insumo, nome do fornecedor ou CNPJ. Para refinar, escreva “somente insumos”, “e os fornecedores?” “em São Paulo” ou “contratos semelhantes”. Para dúvidas técnicas, experimente “O que é alvenaria estrutural?”. Uso os registros disponíveis na base, sem consultar preços ou estoque em tempo real.');status.textContent='Qual insumo ou fornecedor você procura?';return;}
@@ -185,6 +197,11 @@
       const records=root.LupemaAssistantSearch(request);
       const subject=`Busca: “${request.query}”${request.location?' · Localidade: '+request.location:''}`;
       const node=message(records.length?`${subject}. Encontrei ${records.length} registro(s). Abra um resultado para conferir a origem e os detalhes.`:`${subject}. Não encontrei registros com esses termos. Tente um nome mais curto, o código ou outra descrição. Não substituí o insumo por um produto diferente.`);
+      if(request.context){
+        const p=document.createElement('p');p.className='assistant-counts';
+        p.textContent='Contexto informado: '+[request.context.work,request.context.area].filter(Boolean).join(' · ')+'. Os resultados abaixo são referências gerais da base, com a origem indicada em cada registro. A composição do orçamento desta obra ainda não está integrada; estes resultados não confirmam os insumos nem as quantidades necessários para esse serviço.';
+        node.append(p);
+      }
       if(records.length){
         const counts=Object.entries(labels).map(([kind,label])=>{const count=records.filter(r=>r.kind===kind).length;return count?`${count} ${label.toLowerCase()}`:'';}).filter(Boolean).join(' · ');
         const p=document.createElement('p');p.className='assistant-counts';p.textContent=counts;node.append(p);results(node,records);
