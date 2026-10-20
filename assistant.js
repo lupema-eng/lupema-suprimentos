@@ -141,7 +141,7 @@
       const b=document.createElement('button');b.type='button';b.className='assistant-result'+(r.incidentSummary?.total?' has-incident':'');
       b.innerHTML=`${incidentBanner(r)}<span class="assistant-source">${esc(labels[r.kind])}</span><b>${esc(r.title)}</b><span>${esc(r.subtitle)}</span><small>${esc(r.reason)}</small><span class="assistant-detail-link">Ver detalhes →</span>`;
       b.addEventListener('click',()=>detail(r));list.append(b);
-    });shown=Math.min(shown+size,records.length);more.hidden=shown>=records.length;more.textContent=`Mostrar mais (${shown} de ${records.length})`;}
+    });shown=Math.min(shown+size,records.length);more.hidden=shown>=records.length;more.style.display=more.hidden?'none':'';more.textContent=`Mostrar mais (${shown} de ${records.length})`;}
     const filters=document.createElement('div');filters.className='assistant-result-filters';node.insertBefore(filters,list);
     const allRecords=records;
     [['all','Todos'],...Object.entries(labels)].forEach(([kind,label])=>{const count=kind==='all'?allRecords.length:allRecords.filter(r=>r.kind===kind).length;if(!count)return;const b=document.createElement('button');b.type='button';b.textContent=label+' ('+count+')';b.setAttribute('aria-pressed',String(kind==='all'));b.addEventListener('click',()=>{records=kind==='all'?allRecords:allRecords.filter(r=>r.kind===kind);shown=0;lastVoiceRecords=records;list.replaceChildren();filters.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));next();});filters.append(b);});

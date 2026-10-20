@@ -14,7 +14,7 @@
         if(request.context?.area&&!contains(area(record.uc+' '+record.substage+' '+record.activity),words(area(request.context.area))))continue;
         const component=record.items.find(i=>numeric?i.c===request.query:contains(i.d,terms));
         if(!component&&(numeric||!contains(record.activity,terms)))continue;
-        found.push({project,record,component});
+        found.push({project,record,component,serviceMatch:!numeric&&contains(record.activity,terms)});
       }
     }
     return found;
@@ -28,10 +28,10 @@
   function itemLine(i){const registered=official.get(i.c),compatible=registered&&name(registered.d)===name(i.d);return i.c+' · '+i.d+' · Qtd. orçada: '+quantity(i.qty)+' '+i.unit+' · Índice original: '+quantity(i.index)+' · Preço unitário: '+money(i.price)+' · Valor orçado: '+money(i.budgeted)+' · linha '+i.row+(!registered?' · Código ausente da tabela geral atual':!compatible?' · Descrição do orçamento difere do cadastro atual; vínculo de fornecedor não inferido':'');}
   root.LupemaBudgetStatus=()=>({integrated:!!database.projects?.length,revision:database.revision,asOf:database.asOf,projects:(database.projects||[]).map(p=>({work:p.work,...p.counts}))});
   root.LupemaBudgetWorkNames=()=>(database.projects||[]).map(p=>p.work.replace(/\s*-\s*OBRA\s*$/i,'').trim());
-  root.LupemaBudgetSearch=request=>find(database,request).map(({project,record,component})=>{
+  root.LupemaBudgetSearch=request=>find(database,request).map(({project,record,component,serviceMatch})=>{
     const budgeted=record.items.filter(i=>!i.outside),outside=record.items.filter(i=>i.outside);
     const codes=[...new Set(budgeted.filter(i=>{const registered=official.get(i.c);return registered&&name(registered.d)===name(i.d);}).map(i=>i.c))];
-    return {kind:'budgets',id:record.id,title:project.work+' · '+record.activity,subtitle:record.uc+' · '+budgeted.length+' linhas orçadas · '+outside.length+' fora da composição',reason:component?'Correspondência no insumo '+component.c+' · '+component.d+' · linha '+component.row+(component.outside?' — compra fora da composição; não é insumo orçado neste serviço.':'.'):'Correspondência no serviço orçamentário · linha '+record.row+'.',componentCodes:codes,details:[
+    return {kind:'budgets',id:record.id,title:project.work+' · '+record.activity,subtitle:record.uc+' · '+budgeted.length+' linhas orçadas · '+outside.length+' fora da composição',reason:component?'Correspondência no insumo '+component.c+' · '+component.d+' · linha '+component.row+(component.outside?' — compra fora da composição; não é insumo orçado neste serviço.':'.'):'Correspondência no serviço orçamentário · linha '+record.row+'.',componentCodes:codes,serviceMatch,details:[
       ['Obra',project.workCode+' · '+project.work],['Unidade construtiva',record.uc],['Etapa',record.stage],['Subetapa',record.substage],['Serviço / atividade',record.activity],
       ['Valor orçado da atividade',money(record.total.budgeted)],
       ['Insumos orçados nesta atividade',budgeted.length?budgeted.map(itemLine).join('\n'):'Nenhum insumo orçado discriminado nesta atividade.'],
