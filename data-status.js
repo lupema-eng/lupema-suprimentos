@@ -6,7 +6,7 @@
   const title=document.createElement('strong'),body=document.createElement('div');
   if(data.sourceAudit&&data.activeScope){
     const audit=data.sourceAudit;title.textContent='Fontes conciliadas · '+String(audit.asOf||'').split('-').reverse().join('/');
-    body.textContent=Number(audit.activeSuppliers).toLocaleString('pt-BR')+' credores na lista de ativos indicada pela administradora · '+Number(audit.purchaseOrders).toLocaleString('pt-BR')+' pedidos emitidos analisados. Recomendações excluem cadastros bloqueados/reprovados. Histórico preservado; emissão não comprova entrega. Orçamentos ainda não integrados. Solicitações disponíveis no painel próprio e no Lupinho.';
+    body.textContent=Number(audit.activeSuppliers).toLocaleString('pt-BR')+' credores na lista de ativos indicada pela administradora · '+Number(audit.purchaseOrders).toLocaleString('pt-BR')+' pedidos emitidos analisados. Recomendações excluem cadastros bloqueados/reprovados. Histórico preservado; emissão não comprova entrega. '+(data.budgets?.integrated?'Composições dos orçamentos Horizon e SINNI-551 disponíveis no Lupinho.':'Carga dos orçamentos ainda pendente.')+' Solicitações disponíveis no painel próprio e no Lupinho.';
   }else{
     title.textContent='Atualização dos relatórios ainda não ativada no banco';
     body.textContent='Esta sessão utiliza o histórico anterior. A nova lista de fornecedores ativos e os relatórios conciliados só serão aplicados após a carga privada pelo administrador. A data da interface não representa atualização dos dados.';
