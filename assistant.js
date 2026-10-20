@@ -18,7 +18,8 @@
     const scopes=selection?[...new Set((selection[0].match(/[a-z]+/g)||[]).filter(t=>t!=='e').map(t=>/^contrato/.test(t)?'contracts':/^fornecedor/.test(t)?'suppliers':/^servico/.test(t)?'services':'items'))]:null;
     if(scopes)scope='all';
     const context={};
-    if(requestIntent||/\b(?:realizar|executar|execucao|vou|irei|pavimento|andar|subsolo|obra|empreendimento)\b/.test(clean)){
+    const workMention=workNames.some(name=>{const words=normalize(name).match(/[a-z0-9]+/g)||[];return words.length&&new RegExp('\\b'+words.join('[\\s-]*')+'\\b').test(clean);});
+    if(requestIntent||workMention||/\b(?:realizar|executar|execucao|vou|irei|pavimento|andar|subsolo|obra|empreendimento)\b/.test(clean)){
       const names=[...new Set(workNames)].sort((a,b)=>b.length-a.length);
       for(const name of names){
         const words=normalize(name).match(/[a-z0-9]+/g)||[];if(!words.length)continue;
