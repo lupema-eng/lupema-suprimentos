@@ -49,11 +49,13 @@
     catalogItems.forEach(x=>x._text=norm([x.c,x.d,x.syn,x.cat,x.g,x.unit].join(' ')));catalogServices.forEach(x=>x._text=norm([x.c,x.d,x.stage,x.sub,x.u].join(' ')));contractHistory.forEach(x=>x._text=norm([x.n,x.w,x.sid,x.sn,x.class,x.scope,x.groups].join(' ')));scopeReferences.forEach(x=>x._text=norm([x.code,x.scope,x.class,x.groups].join(' ')));
     // Supplier capability requires the subject of a record, not an incidental location.
     const subjectGenericWords=new Set('mo mao obra servico servicos fornecimento aquisicao contratacao locacao manutencao preventiva corretiva instalacao instalacoes execucao montagem desmontagem projeto projetos transporte vertical de do da dos das e para com a o os as'.split(' '));
-    const subjectText=value=>norm(value).replace(/([a-z]+r)es\b/g,'$1');
+    const subjectText=value=>norm(value).replace(/([a-z]+r)es\b/g,'$1').replace(/\binstalacoes\b/g,'instalacao').replace(/\b(hidraulic|eletric)(?:as|os|a|o)\b/g,'$1');
     function subjectMatches(value,query){
       const q=subjectText(query),terms=(q.match(/[a-z0-9]+/g)||[]).filter(t=>!subjectGenericWords.has(t));
       return String(value||'').split(/[|;,\n]/).some(part=>{
-        part=subjectText(part);if(!containsTokens(part,q))return false;
+        part=subjectText(part);
+        if(/^\d+$/.test(q)){const code=part.match(/^\s*(\d+)(?:\s|$|[-·])/);return !!code&&code[1]===q;}
+        if(!containsTokens(part,q))return false;
         const words=(part.match(/[a-z0-9]+/g)||[]).filter(t=>!subjectGenericWords.has(t)&&!/^\d+$/.test(t));
         let primary=part;
         const location=part.match(/\b(?:hall|fosso|poco|vao|caixa|cabine|infraestrutura|portas?|batentes?|cobertura|para|em|no|na)\b/);
@@ -439,6 +441,7 @@ window.addEventListener('lupema:changed',e=>{
     // Read-only assistant: uses the same token matching as the catalog panels.
     // No query, conversation, or result is written to the shared database.
     window.LupemaAssistantWorkNames=()=>[...new Set(contractHistory.map(c=>String(c.w||'').replace(/^\d+\s*-\s*/,'').split(/\s+-\s+/)[0].trim()).filter(Boolean))];
+    window.LupemaAssistantDataStatus=()=>({supplierGeneratedAt:DB.generatedAt,generalItems:catalogItems.length,suppliers:suppliers.length,contracts:contractHistory.length});
     window.LupemaAssistantSearch=function(request){
       const q=String(request.query||'').trim(),location=String(request.location||'').trim();
       if(!q)return [];
@@ -456,8 +459,9 @@ window.addEventListener('lupema:changed',e=>{
       }
       function supplierCard(s,reason){return attachIncidents({kind:'suppliers',id:String(s.id),title:s.tradeName||s.legalName,subtitle:[s.document,s.city,s.state].filter(Boolean).join(' · '),reason,details:[['Razão social',s.legalName],['Nome fantasia',s.tradeName],['CNPJ / CPF',s.document],['Localidade',[s.city,s.state].filter(Boolean).join(' / ')],['Telefone',s.phone],['E-mail',s.email],['Contato',s.contact],['Representante',s.representative],['Classes cadastradas',s.classes],['Situação',s.status],['Avaliação',s.evaluation],['Origem','Cadastro de fornecedores da base Lupema. Dados históricos não confirmam disponibilidade atual.']]},s.id,s.document);}
 
-      const linkedSupplierIds=new Set();
-      const matches=catalogItems.filter(x=>has([x.c,x.d,x.g,x.cat,x.unit].filter(Boolean).join(' '))); // Official general item table only; auxiliary service codes and isolated aliases are not item evidence.
+      const linkedSupplierIds=new Set(),catalogEvidence=new Map();
+      const numericQuery=/^\d+$/.test(q);
+      const matches=catalogItems.filter(x=>numericQuery?String(x.c)===q:has([x.c,x.d,x.g,x.cat,x.unit].filter(Boolean).join(' '))); // Official general item table only; auxiliary service codes and isolated aliases are not item evidence.
       const materialMatches=matches.filter(x=>catalogItems.includes(x)&&materialCategories.has(x.cat)&&subjectMatches([x.c,x.d].join(' '),q));
       // An area such as hidráulica also occurs in material groups. A documented
       // service description must remain searchable without weakening material evidence.
@@ -484,7 +488,7 @@ window.addEventListener('lupema:changed',e=>{
         const isCatalogItem=catalogItems.includes(x);
         const ids=[...new Set([...(x.sids||[]),...(isCatalogItem?(PO_LINKS[String(x.c)]||[]):[]).map(r=>r[0])].map(String))];
         const subjectMatch=subjectMatches([x.c,x.d,x.syn||''].join(' '),q);
-        if(subjectMatch)ids.forEach(id=>linkedSupplierIds.add(id));
+        if(subjectMatch)ids.forEach(id=>{linkedSupplierIds.add(id);if(!catalogEvidence.has(id))catalogEvidence.set(id,[]);catalogEvidence.get(id).push(x.c+' · '+x.d);});
         const kind=catalogItems.includes(x)&&materialCategories.has(x.cat)?'items':'services';
         if(request.scope!=='all'&&request.scope!==kind)return;
         if(location)return; // A catalog record has no geographic scope; search suppliers for city requests.
@@ -494,26 +498,26 @@ window.addEventListener('lupema:changed',e=>{
       if(['all','suppliers'].includes(request.scope))suppliers.forEach(s=>{
         if(!locationHas([s.city,s.state].filter(Boolean).join(' ')))return;
         const identityMatch=has([s.legalName,s.tradeName,s.document].join(' '));
-        const direct=identityMatch||subjectMatches(s.classes,q)||subjectMatches(s.labor?.services,q);
+        const direct=!numericQuery&&(identityMatch||subjectMatches(s.classes,q)||subjectMatches(s.labor?.services,q));
         const evidence=purchaseEvidence.get(String(s.id))||[];
         const contractLinks=contractEvidence.get(String(s.id))||[];
-        const historical=materialLookup?evidence.length>0:contractLinks.length>0||linkedSupplierIds.has(String(s.id))||[...(supplierInsumoIndex.get(String(s.id))||[])].some(t=>subjectMatches(t,q));
+        const historical=materialLookup?evidence.length>0:contractLinks.length>0||linkedSupplierIds.has(String(s.id));
         const documentMatch=digits(q).length>=8&&digits(s.document)===digits(q);
-        if((materialLookup?historical:direct||historical)||documentMatch){const card=supplierCard(s,evidence.length?'Pedido de compra: '+evidence.slice(0,2).join(' | '):contractLinks.length?contractLinks[0].slice(0,260):historical?'Vínculo histórico com insumo / serviço correspondente.':'Correspondência no nome, documento, classe ou serviço cadastrado.');if(evidence.length)card.details.push(['Insumos vinculados em pedidos de compra',evidence.join('\n')]);if(contractLinks.length)card.details.push(['Contratos que comprovam a correspondência',contractLinks.join('\n')]);rows.push(card);}
+        if((materialLookup?historical:direct||historical)||documentMatch){const card=supplierCard(s,evidence.length?'Pedido de compra: '+evidence.slice(0,2).join(' | '):contractLinks.length?contractLinks[0].slice(0,260):historical?'Tabela geral: '+(catalogEvidence.get(String(s.id))||[]).slice(0,2).join(' | '):'Correspondência cadastral por nome, documento ou classe. Sem confirmação de fornecimento pelo histórico desta busca.');card.matchType=evidence.length?'purchase':contractLinks.length?'contract':historical?'catalog':'registration';if(catalogEvidence.has(String(s.id)))card.details.push(['Vínculos na tabela geral',catalogEvidence.get(String(s.id)).join('\n')]);if(evidence.length)card.details.push(['Insumos vinculados em pedidos de compra',evidence.join('\n')]);if(contractLinks.length)card.details.push(['Contratos que comprovam a correspondência',contractLinks.join('\n')]);rows.push(card);}
       });
       if(['all','suppliers','leads'].includes(request.scope))leads.forEach(l=>{
         if(!locationHas([l.location,l.state].filter(Boolean).join(' ')))return;
         const linked=(l.linkedItems||[]).map(x=>typeof x==='object'?[x.c,x.d,x.code,x.name].filter(Boolean).join(' '):x).join(' ');
         const linkedSubject=(l.linkedItems||[]).some(x=>subjectMatches(typeof x==='object'?[x.c,x.d,x.code,x.name].filter(Boolean).join(' '):x,q));
         if(materialLookup&&!linkedSubject)return;
-        if(!has([l.name,l.tradeName,l.document].join(' '))&&!linkedSubject&&!subjectMatches((l.creditorClasses||[]).join(' | ')+' | '+(l.creditorClass||'')+' | '+(l.segment||''),q)&&!(digits(q).length>=8&&digits(l.document)===digits(q)))return;
+        if(!( !numericQuery&&has([l.name,l.tradeName,l.document].join(' ')))&&!linkedSubject&&!subjectMatches((l.creditorClasses||[]).join(' | ')+' | '+(l.creditorClass||'')+' | '+(l.segment||''),q)&&!(digits(q).length>=8&&digits(l.document)===digits(q)))return;
         rows.push(attachIncidents({kind:'leads',id:l.localId||l.id,title:l.tradeName||l.name,subtitle:[l.document,l.location,l.state].filter(Boolean).join(' · '),reason:'Correspondência no cadastro prospectado ou em seus insumos vinculados.',details:[['Razão social',l.name],['Nome fantasia',l.tradeName],['CNPJ / CPF',l.document],['Localidade',[l.location,l.state].filter(Boolean).join(' / ')],['Telefone',l.phone],['E-mail',l.email],['Representante',l.representative],['Classes',(l.creditorClasses||[]).join(' | ')||l.creditorClass],['Insumos vinculados',linked],['Situação',l.status||'Prospectado'],['Sienge',l.siengeRegistration||'Cadastro a conferir'],['Origem','Fornecedor prospectado pela equipe; confira avaliação e documentação antes de contratar.']]},l.localId||l.id,l.document));
       });
       if(['all','contracts'].includes(request.scope))contractHistory.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).forEach(c=>{
         if(location&&!locationHas(c.city||supplierById.get(String(c.sid))?.city||''))return;
         const itemText=(c.items||[]).map(i=>[i.c,i.d,i.g].filter(Boolean).join(' ')).join(' | ');
         const fields=contractFields(c);
-        const reasons=fields.filter(([label,value])=>value&&(label==='Escopo'?subjectMatches(value,q):label==='Itens'?(c.items||[]).some(i=>subjectMatches([i.c,i.d].join(' '),q)):['Fornecedor','Número','Obra'].includes(label)&&has(value))).map(([label])=>label);
+        const reasons=fields.filter(([label,value])=>value&&(label==='Escopo'?subjectMatches(value,q):label==='Itens'?(c.items||[]).some(i=>subjectMatches([i.c,i.d].join(' '),q)):['Fornecedor','Número','Obra'].includes(label)&&(numericQuery?label==='Número'&&(String(value)===q||String(value).match(/\d+/g)?.join('')===q):has(value)))).map(([label])=>label);
         if(!reasons.length)return;
         const supplier=supplierById.get(String(c.sid));
         rows.push({kind:'contracts',id:String(c.id),title:'Contrato '+c.n+' · '+(c.sn||'Fornecedor não informado'),subtitle:[c.w,c.date?fmtDate(c.date):'Sem data',c.siengeStatus].filter(Boolean).join(' · '),reason:'Correspondência em: '+reasons.join(', ')+'. Similaridade por termos cadastrados; confira o escopo.',details:[['Número',c.n],['Obra',c.w],['Fornecedor',c.sn],['Data',c.date?fmtDate(c.date):'Não informada'],['Status no Sienge',c.siengeStatus],['Classificação',c.class],['Escopo',c.scope],['Objeto integral',c.objectFull],['Itens',itemText],['Motivo da correspondência',reasons.join(', ')],['Origem','Histórico de contratos da base Lupema. Não representa análise jurídica nem garante equivalência de condições.']],suppliers:supplier?[supplierCard(supplier,'Fornecedor registrado neste contrato')]:[]});
@@ -522,7 +526,7 @@ window.addEventListener('lupema:changed',e=>{
         needsList.forEach(n=>{if(!has([n.id,n.work,n.activity,n.scope,n.classification].filter(Boolean).join(' ')))return;rows.push({kind:'needs',id:n.id,title:(n.id||'Necessidade')+' · '+(n.scope||n.activity||'Sem escopo'),subtitle:[n.work,n.status].filter(Boolean).join(' · '),reason:'Correspondência na necessidade registrada pela equipe.',details:[['Identificador',n.id],['Obra',n.work],['Atividade',n.activity],['Escopo',n.scope],['Classificação',n.classification],['Data necessária',n.needDate],['Situação',n.status],['Responsável',n.owner],['Restrição',n.restriction],['Origem','Necessidades compartilhadas na plataforma Lupema.']]});});
         LupemaCloud.read('lupemaReferenceProposalsV1',[]).forEach(r=>{if(!has([r.name,r.group,r.detail,r.marketTerm].filter(Boolean).join(' ')))return;rows.push({kind:'references',id:r.id,title:r.name,subtitle:[r.group,r.unit,r.status].filter(Boolean).join(' · '),reason:'Correspondência em uma proposta salva de referência.',details:[['Descrição',r.name],['Grupo',r.group],['Unidade',r.unit],['Detalhamento',r.detail],['Termo de mercado',r.marketTerm],['Fonte informada',r.sourceUrl],['Situação',r.status],['Origem','Proposta de referência salva pela equipe; não equivale a insumo homologado.']]});});
       }
-      return rows;
+      return request.scopes?rows.filter(r=>request.scopes.includes(r.kind)||r.kind==='leads'&&request.scopes.includes('suppliers')):rows;
     };
 
     window.LupemaAssistantFindSupplier=function(identity){

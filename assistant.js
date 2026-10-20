@@ -1,7 +1,7 @@
 (function(root){
   'use strict';
   const normalize=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-  const stop=new Set('eu me voce voces por favor preciso precisamos quero queria gostaria encontre encontrar busca buscar busque pesquisa pesquisar pesquise procura procurar procure mostre mostrar ver localizar localize um uma uns umas o a os as de do da dos das para pra com que tem na no nossa nosso base lupema cadastrado cadastrados cadastrada cadastradas apenas somente so e pelo pela classe classes grupo grupos realizacao realizar aplicacao aplicar semelhante semelhantes relacionado relacionados sobre tambem esses estas estes isso desse dessa dele dela traga trazer tudo informacoes resumo'.split(' '));
+  const stop=new Set('eu me voce voces por favor preciso precisamos quero queria gostaria encontre encontrar busca buscar busque pesquisa pesquisar pesquise procura procurar procure mostre mostrar ver localizar localize um uma uns umas o a os as de do da dos das para pra com que tem na no nossa nosso base lupema cadastrado cadastrados cadastrada cadastradas apenas somente so e pelo pela classe classes grupo grupos realizacao realizar aplicacao aplicar semelhante semelhantes relacionado relacionados sobre tambem esses estas estes isso desse dessa dele dela traga trazer tudo informacoes resumo qual quais indique informe encontro'.split(' '));
   function parse(text,previous,workNames=[]){
     let clean=normalize(text).trim();
     if(/^(oi|ola|bom dia|boa tarde|boa noite|ajuda|como usar)[!? .]*$/.test(clean))return {help:true};
@@ -12,7 +12,10 @@
     }
     const contractIntent=/\bcontratos?\b/.test(clean),itemIntent=/\binsumos?\b|\bmateriais?\b/.test(clean);
     let scope=contractIntent&&itemIntent?'all':contractIntent?'contracts':/prospectad|novos fornecedores/.test(clean)?'leads':/fornecedor|fornecedores|cnpj|cpf/.test(clean)?'suppliers':/mao de obra|servico|servicos/.test(clean)?'services':/insumo|insumos|material|materiais|equipamento|ferramenta/.test(clean)?'items':'all';
-    if(scope==='services'&&/\b(?:realizar|executar|execucao|vou|irei)\b/.test(clean)&&!/\b(?:somente|apenas|so)\b/.test(clean))scope='all';
+    if(scope==='services'&&/\b(?:realizar|executar|execucao|vou|irei|preciso|quero|gostaria)\b/.test(clean)&&!/\b(?:somente|apenas|so)\b/.test(clean))scope='all';
+    const selection=clean.match(/\b(?:insumos?|materiais?|fornecedores?|contratos?|servicos?)\b(?:\s*(?:,|e)\s*(?:insumos?|materiais?|fornecedores?|contratos?|servicos?)\b)+/);
+    const scopes=selection?[...new Set((selection[0].match(/[a-z]+/g)||[]).filter(t=>t!=='e').map(t=>/^contrato/.test(t)?'contracts':/^fornecedor/.test(t)?'suppliers':/^servico/.test(t)?'services':'items'))]:null;
+    if(scopes)scope='all';
     const context={};
     if(/\b(?:realizar|executar|execucao|vou|irei|pavimento|andar|subsolo|obra|empreendimento)\b/.test(clean)){
       const names=[...new Set(workNames)].sort((a,b)=>b.length-a.length);
@@ -21,7 +24,7 @@
         const pattern=new RegExp('\\b'+words.join('[\\s-]*')+'\\b','g');
         if(pattern.test(clean)){context.work=name;clean=clean.replace(pattern,' ');break;}
       }
-      const areaPattern=/\b(?:pavimento\s+(?:(?:do|de)\s+)?(?:h?tipo|terreo|tecnico|superior|inferior)|\d+\s*(?:o|a)?\s*(?:andar|pavimento|subsolo)|terreo|mezanino|cobertura)\b/g;
+      const areaPattern=/\b(?:pavimento\s+(?:(?:do|de)\s+)?(?:h?tipo|terreo|tecnico|superior|inferior)|\d+\s*(?:[º°ª]|o|a)?\s*(?:andar|pavimento|subsolo)|terreo|mezanino|cobertura)\b/g;
       const areas=clean.match(areaPattern);if(areas){context.area=areas.join(' · ');clean=clean.replace(areaPattern,' ');}
       clean=clean.replace(/\b(?:vou|irei|executar|execucao|fazer|obra|empreendimento|pavimento)\b/g,' ').replace(/\s+/g,' ').trim().replace(/\b(?:em|no|na|do|da)(?:\s+(?:em|no|na|do|da))*\s*$/,'').trim();
     }
@@ -36,7 +39,7 @@
     if(!terms&&previous?.query){terms=previous.query;if(scope==='all')scope=previous.scope;}
     // Location-only follow-ups keep the subject and supplier scope.
     if(location&&scope==='all')scope=previous?.scope==='leads'?'leads':'suppliers';
-    return {query:terms,scope,location:location||(following&&previous?.location)||'',...(Object.keys(context).length?{context}:following&&previous?.context?{context:previous.context}:{})};
+    return {query:terms,scope,location:location||(following&&previous?.location)||'',...(scopes?{scopes}:following&&scope==='all'&&previous?.scopes?{scopes:previous.scopes}:{}),...(Object.keys(context).length?{context}:following&&previous?.context?{context:previous.context}:{})};
   }
   function externalLinks(term){const q=encodeURIComponent(String(term||'').trim().slice(0,250));return [{label:'Google',url:'https://www.google.com/search?q='+q},{label:'Google Imagens',url:'https://www.google.com/search?tbm=isch&q='+q},{label:'Google Maps',url:'https://www.google.com/maps/search/?api=1&query='+q},{label:'Google Lens (imagem)',url:'https://lens.google.com/'}];}
   function speechText(text){
@@ -204,11 +207,18 @@
         node.append(p);
       }
       if(records.length){
-        const counts=Object.entries(labels).map(([kind,label])=>{const count=records.filter(r=>r.kind===kind).length;return count?`${count} ${label.toLowerCase()}`:'';}).filter(Boolean).join(' · ');
+        const counts=Object.entries(labels).filter(([kind])=>request.scopes?request.scopes.includes(kind)||kind==='leads'&&request.scopes.includes('suppliers'):request.scope==='all'?['items','services','suppliers','contracts'].includes(kind)||records.some(r=>r.kind===kind):request.scope===kind||request.scope==='suppliers'&&kind==='leads').map(([kind,label])=>`${records.filter(r=>r.kind===kind).length} ${label.toLowerCase()}`).join(' · ');
         const p=document.createElement('p');p.className='assistant-counts';p.textContent=counts;node.append(p);results(node,records);
       }
       const providers=records.filter(r=>['suppliers','leads'].includes(r.kind));
       const membership=document.createElement('p');membership.className='assistant-membership';membership.textContent=providers.length?providers.length+' fornecedor(es) da base ou prospectados associados à busca. Para confirmar uma empresa, use a conferência por nome/CNPJ acima.':'Nenhum fornecedor associado a estes termos foi localizado na base ou nos prospectados. Para conferir uma empresa específica, use nome/CNPJ acima.';node.append(membership);
+      const dataStatus=root.LupemaAssistantDataStatus?.();
+      if(dataStatus){
+        const note=document.createElement('p');note.className='assistant-counts';
+        const date=String(dataStatus.supplierGeneratedAt||'').slice(0,10);const formatted=/^\d{4}-\d{2}-\d{2}$/.test(date)?date.split('-').reverse().join('/'):'';
+        note.textContent='Fontes: tabela geral de insumos, cadastro de fornecedores e histórico de contratos importados'+(formatted?'. Cadastro original de fornecedores gerado em '+formatted:'')+'. Alterações da equipe são lidas da base compartilhada. Esta consulta não atualiza o Sienge.';
+        node.append(note);
+      }
       externalSearch(node,[request.query,request.location].filter(Boolean).join(' '));
       status.textContent=records.length?'Resultados encontrados':'Vamos ajustar a busca?';mascot.src=records.length?'./lupinho-fala-1.webp':'./lupinho-ola.webp';
     }catch(error){message('Não consegui concluir a consulta. Tente novamente. Se continuar, informe a equipe técnica.');status.textContent='Consulta interrompida';}
