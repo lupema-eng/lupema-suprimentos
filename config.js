@@ -3,6 +3,6 @@
 window.LUPEMA_CONFIG = Object.freeze({
   supabaseUrl: 'https://uwuixopfwurkhbjtfqdl.supabase.co',
   publishableKey: 'sb_publishable_lFXobp19yuvSLm6qa8HrkA_k9BcXeGA',
-  assetVersion: '20261020-assistente-11',
+  assetVersion: '20261020-assistente-12',
   syncIntervalMs: 10000
 });

@@ -12,6 +12,7 @@
     }
     const contractIntent=/\bcontratos?\b/.test(clean),itemIntent=/\binsumos?\b|\bmateriais?\b/.test(clean);
     let scope=contractIntent&&itemIntent?'all':contractIntent?'contracts':/prospectad|novos fornecedores/.test(clean)?'leads':/fornecedor|fornecedores|cnpj|cpf/.test(clean)?'suppliers':/mao de obra|servico|servicos/.test(clean)?'services':/insumo|insumos|material|materiais|equipamento|ferramenta/.test(clean)?'items':'all';
+    if(scope==='services'&&/\b(?:realizar|executar|execucao|vou|irei)\b/.test(clean)&&!/\b(?:somente|apenas|so)\b/.test(clean))scope='all';
     const context={};
     if(/\b(?:realizar|executar|execucao|vou|irei|pavimento|andar|subsolo|obra|empreendimento)\b/.test(clean)){
       const names=[...new Set(workNames)].sort((a,b)=>b.length-a.length);
@@ -20,7 +21,7 @@
         const pattern=new RegExp('\\b'+words.join('[\\s-]*')+'\\b','g');
         if(pattern.test(clean)){context.work=name;clean=clean.replace(pattern,' ');break;}
       }
-      const areaPattern=/\b(?:pavimento\s+(?:h?tipo|terreo|tecnico|superior|inferior)|\d+\s*(?:o|a)?\s*(?:andar|pavimento|subsolo)|terreo|mezanino|cobertura)\b/g;
+      const areaPattern=/\b(?:pavimento\s+(?:(?:do|de)\s+)?(?:h?tipo|terreo|tecnico|superior|inferior)|\d+\s*(?:o|a)?\s*(?:andar|pavimento|subsolo)|terreo|mezanino|cobertura)\b/g;
       const areas=clean.match(areaPattern);if(areas){context.area=areas.join(' · ');clean=clean.replace(areaPattern,' ');}
       clean=clean.replace(/\b(?:vou|irei|executar|execucao|fazer|obra|empreendimento|pavimento)\b/g,' ').replace(/\s+/g,' ').trim().replace(/\b(?:em|no|na|do|da)(?:\s+(?:em|no|na|do|da))*\s*$/,'').trim();
     }
