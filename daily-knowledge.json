@@ -1,10 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-10-20",
-  "title": "Alvenaria estrutural: entenda a função da parede",
-  "text": "Na alvenaria estrutural, as paredes participam do suporte da edificação. Existem soluções armadas e não armadas, definidas pelo projeto. Na solução armada, o graute envolve a armadura nos vazados dos blocos. Antes de planejar alterações, identifique no projeto a função da parede e encaminhe a intervenção ao responsável pelo projeto estrutural. A aparência da parede não basta para decidir sua função.",
+  "publishedOn": "2026-10-21",
+  "title": "Cura do concreto: prevenção começa no planejamento",
+  "text": "A cura ajuda a limitar a perda de umidade do concreto nas primeiras idades. A evaporação é influenciada pela temperatura, pela umidade do ar e pelo vento. Quando a perda de água é excessiva, podem surgir fissuras ainda no concreto fresco. No planejamento da concretagem, inclua a cura entre as atividades previstas, com recursos e responsáveis definidos antes do serviço. O método e o acompanhamento devem seguir o procedimento estabelecido pela equipe técnica. Planejar a continuidade desse cuidado ajuda a prevenir falhas e retrabalho.",
   "sources": [
-    {"label": "ABCP — Alvenaria estrutural", "url": "https://abcp.org.br/aplicacoes-alvenaria-estrutural/"},
-    {"label": "ABCP — Alvenaria estrutural em pauta", "url": "https://abcp.org.br/alvenaria-estrutural-em-pauta/"}
+    {
+      "label": "ABCP — Propriedades do concreto nos estados fresco e endurecido (retração plástica, p. 13)",
+      "url": "https://abcp.org.br/wp-content/uploads/2020/07/Propriedades_do-concreto_ABCPonLINE_16.07.pdf"
+    }
   ]
 }
