@@ -1,12 +1,16 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-10-21",
-  "title": "Cura do concreto: prevenção começa no planejamento",
-  "text": "A cura ajuda a limitar a perda de umidade do concreto nas primeiras idades. A evaporação é influenciada pela temperatura, pela umidade do ar e pelo vento. Quando a perda de água é excessiva, podem surgir fissuras ainda no concreto fresco. No planejamento da concretagem, inclua a cura entre as atividades previstas, com recursos e responsáveis definidos antes do serviço. O método e o acompanhamento devem seguir o procedimento estabelecido pela equipe técnica. Planejar a continuidade desse cuidado ajuda a prevenir falhas e retrabalho.",
+  "publishedOn": "2026-10-22",
+  "title": "Compra de materiais: verifique a qualificação do fabricante",
+  "text": "Os Programas Setoriais da Qualidade (PSQs) do PBQP-H acompanham a conformidade de materiais e a qualificação das empresas dos setores abrangidos. Os relatórios setoriais são atualizados periodicamente. Antes de comprar, identifique o material e o fabricante e consulte o programa correspondente, observando a data do relatório e os produtos avaliados. Registre a referência consultada junto à análise de compra. A qualificação deve ser conferida no contexto do programa e não substitui a verificação da especificação e do material recebido. Essa rotina aproxima suprimentos e qualidade e ajuda a prevenir não conformidades.",
   "sources": [
     {
-      "label": "ABCP — Propriedades do concreto nos estados fresco e endurecido (retração plástica, p. 13)",
-      "url": "https://abcp.org.br/wp-content/uploads/2020/07/Propriedades_do-concreto_ABCPonLINE_16.07.pdf"
+      "label": "Ministério das Cidades — SiMaC e relatórios setoriais",
+      "url": "https://www.gov.br/cidades/pt-br/assuntos/habitacao/pbqp-h/simac-sistema-de-qualificacao-de-empresas-de-materiais-componentes-e-sistemas-construtivos"
+    },
+    {
+      "label": "Ministério da Integração e do Desenvolvimento Regional — Perguntas frequentes sobre o SiMaC",
+      "url": "https://www.gov.br/mdr/pt-br/acesso-a-informacao/perguntas-frequentes/perguntas-frequentes-habitacao/programa-brasileiro-da-qualidade-e-produtividade-do-habitat-pbqp-h/3-relativas-ao-sistema"
     }
   ]
 }
