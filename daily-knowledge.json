@@ -1,16 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-10-22",
-  "title": "Compra de materiais: verifique a qualificação do fabricante",
-  "text": "Os Programas Setoriais da Qualidade (PSQs) do PBQP-H acompanham a conformidade de materiais e a qualificação das empresas dos setores abrangidos. Os relatórios setoriais são atualizados periodicamente. Antes de comprar, identifique o material e o fabricante e consulte o programa correspondente, observando a data do relatório e os produtos avaliados. Registre a referência consultada junto à análise de compra. A qualificação deve ser conferida no contexto do programa e não substitui a verificação da especificação e do material recebido. Essa rotina aproxima suprimentos e qualidade e ajuda a prevenir não conformidades.",
+  "publishedOn": "2026-10-23",
+  "title": "Compatibilização de projetos: identifique interferências antes da execução",
+  "text": "Compatibilizar projetos é verificar a coerência entre arquitetura, estrutura e instalações, identificando conflitos entre seus elementos e informações. Em BIM, a reunião dos modelos das disciplinas facilita essa análise antes da execução. Cada interferência precisa ser examinada pelos responsáveis pelos projetos, com a solução incorporada à documentação revisada. Para acompanhar o tratamento, registre a localização do conflito, as disciplinas envolvidas, o responsável pela análise e a situação da pendência. Após a revisão, confira se modelos e documentos refletem a solução definida. Essa organização favorece a comunicação entre equipes e ajuda a prevenir retrabalho.",
   "sources": [
     {
-      "label": "Ministério das Cidades — SiMaC e relatórios setoriais",
-      "url": "https://www.gov.br/cidades/pt-br/assuntos/habitacao/pbqp-h/simac-sistema-de-qualificacao-de-empresas-de-materiais-componentes-e-sistemas-construtivos"
-    },
-    {
-      "label": "Ministério da Integração e do Desenvolvimento Regional — Perguntas frequentes sobre o SiMaC",
-      "url": "https://www.gov.br/mdr/pt-br/acesso-a-informacao/perguntas-frequentes/perguntas-frequentes-habitacao/programa-brasileiro-da-qualidade-e-produtividade-do-habitat-pbqp-h/3-relativas-ao-sistema"
+      "label": "Governo de Santa Catarina — Caderno de Especificações de Projetos em BIM, seção 6.3",
+      "url": "https://www.bim.sc.gov.br/_files/ugd/1b4d08_7dd6ca40723f45878d14641247df9cc0.pdf"
     }
   ]
 }
