@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-10-23",
-  "title": "Compatibilização de projetos: identifique interferências antes da execução",
-  "text": "Compatibilizar projetos é verificar a coerência entre arquitetura, estrutura e instalações, identificando conflitos entre seus elementos e informações. Em BIM, a reunião dos modelos das disciplinas facilita essa análise antes da execução. Cada interferência precisa ser examinada pelos responsáveis pelos projetos, com a solução incorporada à documentação revisada. Para acompanhar o tratamento, registre a localização do conflito, as disciplinas envolvidas, o responsável pela análise e a situação da pendência. Após a revisão, confira se modelos e documentos refletem a solução definida. Essa organização favorece a comunicação entre equipes e ajuda a prevenir retrabalho.",
+  "publishedOn": "2026-10-24",
+  "title": "Armazenamento do cimento: preserve o material antes da aplicação",
+  "text": "O cimento é sensível à água e à umidade, que podem provocar endurecimento antes do uso e alterar suas propriedades. A embalagem de papel não impede a ação direta da água. Planeje um local seco, coberto e protegido de fontes de umidade, evitando o contato dos sacos com o piso e paredes úmidas. Preserve a integridade das embalagens e organize o estoque para identificar as datas de fabricação e utilizar primeiro os materiais armazenados há mais tempo, respeitando as orientações do fabricante. Sinais de umidade ou deterioração devem ser encaminhados à avaliação técnica antes do uso.",
   "sources": [
     {
-      "label": "Governo de Santa Catarina — Caderno de Especificações de Projetos em BIM, seção 6.3",
-      "url": "https://www.bim.sc.gov.br/_files/ugd/1b4d08_7dd6ca40723f45878d14641247df9cc0.pdf"
+      "label": "ABCP — Como armazenar cimento",
+      "url": "https://abcp.org.br/como-armazenar-cimento/"
     }
   ]
 }
