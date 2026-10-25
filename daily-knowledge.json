@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-10-24",
-  "title": "Armazenamento do cimento: preserve o material antes da aplicação",
-  "text": "O cimento é sensível à água e à umidade, que podem provocar endurecimento antes do uso e alterar suas propriedades. A embalagem de papel não impede a ação direta da água. Planeje um local seco, coberto e protegido de fontes de umidade, evitando o contato dos sacos com o piso e paredes úmidas. Preserve a integridade das embalagens e organize o estoque para identificar as datas de fabricação e utilizar primeiro os materiais armazenados há mais tempo, respeitando as orientações do fabricante. Sinais de umidade ou deterioração devem ser encaminhados à avaliação técnica antes do uso.",
+  "publishedOn": "2026-10-25",
+  "title": "Resíduos no canteiro: planeje a separação desde a origem",
+  "text": "A gestão dos resíduos começa no planejamento das etapas da obra. Identifique os materiais que serão descartados, estime suas quantidades e defina como serão separados no ponto de geração. Preveja recipientes e áreas de armazenamento identificados, compatíveis com os diferentes resíduos, para evitar misturas e contaminação dos materiais recicláveis. Oriente a equipe sobre a separação e mantenha registros do acondicionamento, do transporte e da destinação. Durante a execução, atualize as estimativas com os volumes efetivamente gerados. Essas informações ajudam a acompanhar o plano de gerenciamento e a organizar as retiradas.",
   "sources": [
     {
-      "label": "ABCP — Como armazenar cimento",
-      "url": "https://abcp.org.br/como-armazenar-cimento/"
+      "label": "Prefeitura de Jundiaí — Modelo orientador de gerenciamento de resíduos da construção civil",
+      "url": "https://jundiai.sp.gov.br/planejamento-e-meio-ambiente/wp-content/uploads/sites/15/2026/02/jundiai-pgrs-cc_modelo-conteudo-pgrs-cc.pdf"
     }
   ]
 }
