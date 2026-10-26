@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-10-25",
-  "title": "Resíduos no canteiro: planeje a separação desde a origem",
-  "text": "A gestão dos resíduos começa no planejamento das etapas da obra. Identifique os materiais que serão descartados, estime suas quantidades e defina como serão separados no ponto de geração. Preveja recipientes e áreas de armazenamento identificados, compatíveis com os diferentes resíduos, para evitar misturas e contaminação dos materiais recicláveis. Oriente a equipe sobre a separação e mantenha registros do acondicionamento, do transporte e da destinação. Durante a execução, atualize as estimativas com os volumes efetivamente gerados. Essas informações ajudam a acompanhar o plano de gerenciamento e a organizar as retiradas.",
+  "publishedOn": "2026-10-26",
+  "title": "Cronograma: conecte atividades, responsáveis e recursos",
+  "text": "Um cronograma útil organiza a sequência do trabalho, as durações estimadas e as dependências entre atividades. Comece pelas entregas previstas e detalhe as tarefas necessárias para concluí-las. Para cada atividade, indique datas, responsável e recursos necessários, incluindo aquisições relacionadas. As relações de precedência mostram quais tarefas dependem de outras, enquanto o caminho crítico identifica a sequência que determina a duração do projeto. Visualizar essas informações ajuda a reconhecer riscos de atraso e a discutir ajustes. Na obra, essa organização permite relacionar a programação dos serviços à disponibilidade de materiais e equipes.",
   "sources": [
     {
-      "label": "Prefeitura de Jundiaí — Modelo orientador de gerenciamento de resíduos da construção civil",
-      "url": "https://jundiai.sp.gov.br/planejamento-e-meio-ambiente/wp-content/uploads/sites/15/2026/02/jundiai-pgrs-cc_modelo-conteudo-pgrs-cc.pdf"
+      "label": "Ministério do Planejamento e Orçamento — Guia Metodológico de Gestão de Projetos, Caderno 2",
+      "url": "https://www.gov.br/planejamento/pt-br/acesso-a-informacao/acoes-e-programas/governanca/gestao-estrategica/documentos/caderno-2.pdf/@@display-file/file"
     }
   ]
 }
