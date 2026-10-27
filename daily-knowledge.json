@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-10-26",
-  "title": "Cronograma: conecte atividades, responsáveis e recursos",
-  "text": "Um cronograma útil organiza a sequência do trabalho, as durações estimadas e as dependências entre atividades. Comece pelas entregas previstas e detalhe as tarefas necessárias para concluí-las. Para cada atividade, indique datas, responsável e recursos necessários, incluindo aquisições relacionadas. As relações de precedência mostram quais tarefas dependem de outras, enquanto o caminho crítico identifica a sequência que determina a duração do projeto. Visualizar essas informações ajuda a reconhecer riscos de atraso e a discutir ajustes. Na obra, essa organização permite relacionar a programação dos serviços à disponibilidade de materiais e equipes.",
+  "publishedOn": "2026-10-27",
+  "title": "Impermeabilização: confira o sistema e o escopo antes da contratação",
+  "text": "A impermeabilização ajuda a proteger a edificação contra a passagem indesejada de água e a deterioração de seus materiais. Uma falha pode exigir a remoção de revestimentos e outros elementos sobre o sistema, ampliando o retrabalho. Antes da contratação, confirme com o projetista e a documentação do fabricante se o sistema é adequado à aplicação prevista. Solicite proposta com etapas, produtos, fabricantes, materiais fornecidos por cada parte e custos discriminados. Confira também os prazos e as responsabilidades de garantia. Dúvidas sobre execução devem ser esclarecidas com os responsáveis técnicos, o aplicador e o fabricante.",
   "sources": [
     {
-      "label": "Ministério do Planejamento e Orçamento — Guia Metodológico de Gestão de Projetos, Caderno 2",
-      "url": "https://www.gov.br/planejamento/pt-br/acesso-a-informacao/acoes-e-programas/governanca/gestao-estrategica/documentos/caderno-2.pdf/@@display-file/file"
+      "label": "ABCP — DCC Respondendo às dúvidas: Impermeabilização",
+      "url": "https://abcp.org.br/wp-content/uploads/2016/01/Impermeabilizacao.pdf"
     }
   ]
 }
