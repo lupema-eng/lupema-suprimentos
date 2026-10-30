@@ -1,16 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-10-29",
-  "title": "Eflorescência: entenda os depósitos de sais na superfície",
-  "text": "Eflorescência é a formação de depósitos de sais na superfície de materiais de construção. A água dissolve sais presentes nos materiais ou provenientes de fontes externas e os transporta pelos poros; ao evaporar, deixa os depósitos. O fenômeno envolve a presença de água, sais solúveis e condições que permitam seu transporte e evaporação. A aparência esbranquiçada, sozinha, não identifica a origem da água ou dos sais. Registre a localização e fotografe as áreas afetadas para apoiar a avaliação técnica das causas antes de definir qualquer tratamento.",
+  "publishedOn": "2026-10-30",
+  "title": "Indicadores confiáveis: documente o que medir e como calcular",
+  "text": "Antes de criar um indicador, defina qual objetivo ele ajudará a acompanhar. Registre em uma ficha seu nome, finalidade, meta, fórmula de cálculo, origem dos dados, frequência de atualização e responsável pela apuração. Explique também como interpretar o resultado e se o desempenho desejado corresponde a aumentar ou reduzir o valor. Preserve a série histórica e deixe claras as limitações da medida. Essa documentação facilita o entendimento entre equipes e a análise dos resultados. O indicador deve apoiar decisões: quando apontar um desvio, é necessário investigar as causas e avaliar ações de melhoria.",
   "sources": [
     {
-      "label": "Revista Cerâmica — Pesquisa de Menezes e colaboradores sobre sais solúveis e eflorescência",
-      "url": "https://www.scielo.br/j/ce/a/WHzSvDfn78JKN9VyQ79ppTw/?format=html"
-    },
-    {
-      "label": "Universidade de Brasília — Mensuração da degradação de fachadas em argamassa empregando a inspeção de edifícios",
-      "url": "https://bdm.unb.br/bitstream/10483/20484/1/2017_MarianaSPiresHolandaMacedo_tcc.pdf"
+      "label": "Enap — Guia referencial para construção e análise de indicadores",
+      "url": "https://www.gov.br/gestao/pt-br/acesso-a-informacao/estrategia-e-governanca/planejamento_estrategico_arquivos/livros_guias_publicacoes/guia-referencial-para-construcao-e-analise-de-indicadores-enap-2021.pdf"
     }
   ]
 }
