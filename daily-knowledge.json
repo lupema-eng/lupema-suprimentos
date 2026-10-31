@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-10-30",
-  "title": "Indicadores confiáveis: documente o que medir e como calcular",
-  "text": "Antes de criar um indicador, defina qual objetivo ele ajudará a acompanhar. Registre em uma ficha seu nome, finalidade, meta, fórmula de cálculo, origem dos dados, frequência de atualização e responsável pela apuração. Explique também como interpretar o resultado e se o desempenho desejado corresponde a aumentar ou reduzir o valor. Preserve a série histórica e deixe claras as limitações da medida. Essa documentação facilita o entendimento entre equipes e a análise dos resultados. O indicador deve apoiar decisões: quando apontar um desvio, é necessário investigar as causas e avaliar ações de melhoria.",
+  "publishedOn": "2026-10-31",
+  "title": "Argamassas: identifique a função antes de solicitar o material",
+  "text": "Argamassas têm aplicações diferentes na construção. A de assentamento une tijolos ou blocos na alvenaria; a de revestimento recobre paredes e tetos. O contrapiso regulariza a superfície que receberá o acabamento. A argamassa colante faz a ligação da peça cerâmica à base, enquanto a de rejuntamento preenche as juntas entre as peças. Essas funções envolvem propriedades específicas, como aderência, trabalhabilidade e capacidade de acomodar deformações. Ao descrever uma necessidade de compra, informe a aplicação prevista para que a seleção do material seja conferida com a especificação técnica do serviço.",
   "sources": [
     {
-      "label": "Enap — Guia referencial para construção e análise de indicadores",
-      "url": "https://www.gov.br/gestao/pt-br/acesso-a-informacao/estrategia-e-governanca/planejamento_estrategico_arquivos/livros_guias_publicacoes/guia-referencial-para-construcao-e-analise-de-indicadores-enap-2021.pdf"
+      "label": "IFRN — Material didático de Construção Civil II: Argamassas",
+      "url": "https://docentes.ifrn.edu.br/valtencirgomes/disciplinas/construcao-civil-ii-1/argamassas-de-revestimento-material-auxiliar"
     }
   ]
 }
