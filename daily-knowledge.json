@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-10-31",
-  "title": "Argamassas: identifique a função antes de solicitar o material",
-  "text": "Argamassas têm aplicações diferentes na construção. A de assentamento une tijolos ou blocos na alvenaria; a de revestimento recobre paredes e tetos. O contrapiso regulariza a superfície que receberá o acabamento. A argamassa colante faz a ligação da peça cerâmica à base, enquanto a de rejuntamento preenche as juntas entre as peças. Essas funções envolvem propriedades específicas, como aderência, trabalhabilidade e capacidade de acomodar deformações. Ao descrever uma necessidade de compra, informe a aplicação prevista para que a seleção do material seja conferida com a especificação técnica do serviço.",
+  "publishedOn": "2026-11-01",
+  "title": "5W2H: transforme uma pendência em um plano de ação claro",
+  "text": "O 5W2H organiza o planejamento por sete perguntas: o que será feito, por que é necessário, quem será responsável, quando ocorrerá, onde será realizado, como será executado e quais custos ou recursos serão necessários. Ao registrar uma ação, descreva a entrega esperada, defina o responsável e estabeleça o prazo. Detalhe o modo de execução e os recursos envolvidos para reduzir dúvidas entre as equipes. Acompanhe o andamento das ações e revise o plano quando houver mudanças. Essa organização torna os compromissos mais claros e facilita o acompanhamento do trabalho.",
   "sources": [
     {
-      "label": "IFRN — Material didático de Construção Civil II: Argamassas",
-      "url": "https://docentes.ifrn.edu.br/valtencirgomes/disciplinas/construcao-civil-ii-1/argamassas-de-revestimento-material-auxiliar"
+      "label": "CGU — Portal de Ouvidorias: ferramenta 5W2H",
+      "url": "https://www.gov.br/ouvidorias/pt-br/governanca-de-servicos/ferramentas/5w2h"
     }
   ]
 }
