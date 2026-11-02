@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-01",
-  "title": "5W2H: transforme uma pendência em um plano de ação claro",
-  "text": "O 5W2H organiza o planejamento por sete perguntas: o que será feito, por que é necessário, quem será responsável, quando ocorrerá, onde será realizado, como será executado e quais custos ou recursos serão necessários. Ao registrar uma ação, descreva a entrega esperada, defina o responsável e estabeleça o prazo. Detalhe o modo de execução e os recursos envolvidos para reduzir dúvidas entre as equipes. Acompanhe o andamento das ações e revise o plano quando houver mudanças. Essa organização torna os compromissos mais claros e facilita o acompanhamento do trabalho.",
+  "publishedOn": "2026-11-02",
+  "title": "Agregados: a aparência não comprova a qualidade do material",
+  "text": "Na compra de agregados para concreto, avalie a qualidade e a regularidade das características fornecidas, além do preço. Uma observação cuidadosa pode revelar torrões de argila e partículas frágeis, mas certas impurezas orgânicas não são identificadas apenas pela aparência. Essas contaminações podem prejudicar o desempenho do concreto e causar manchas. Por isso, a inspeção visual auxilia o recebimento, enquanto a avaliação da adequação do material depende dos ensaios pertinentes e da análise técnica. A capacidade do fornecedor de manter características constantes também merece atenção.",
   "sources": [
     {
-      "label": "CGU — Portal de Ouvidorias: ferramenta 5W2H",
-      "url": "https://www.gov.br/ouvidorias/pt-br/governanca-de-servicos/ferramentas/5w2h"
+      "label": "ABCP — Boletim técnico BT-107: Produção de blocos de concreto para alvenaria, seção sobre agregados",
+      "url": "https://abcp.org.br/wp-content/uploads/2016/01/BT-107_Producao_blocos_alvenaria_PR.pdf"
     }
   ]
 }
