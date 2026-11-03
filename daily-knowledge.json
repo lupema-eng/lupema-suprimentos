@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-02",
-  "title": "Agregados: a aparência não comprova a qualidade do material",
-  "text": "Na compra de agregados para concreto, avalie a qualidade e a regularidade das características fornecidas, além do preço. Uma observação cuidadosa pode revelar torrões de argila e partículas frágeis, mas certas impurezas orgânicas não são identificadas apenas pela aparência. Essas contaminações podem prejudicar o desempenho do concreto e causar manchas. Por isso, a inspeção visual auxilia o recebimento, enquanto a avaliação da adequação do material depende dos ensaios pertinentes e da análise técnica. A capacidade do fornecedor de manter características constantes também merece atenção.",
+  "publishedOn": "2026-11-03",
+  "title": "Diário de obra: registre o contexto da execução a cada dia",
+  "text": "O diário de obra reúne informações do andamento diário dos serviços. Registre as atividades em execução, o efetivo de pessoal, a entrada e a saída de equipamentos, as condições climáticas e as visitas ao canteiro. Organize também as comunicações sobre irregularidades, providências e ajustes no planejamento nos registros de ocorrências correspondentes. Descrições claras, vinculadas à data e ao serviço, ajudam a reconstruir o contexto da execução e a acompanhar as decisões tomadas. Esse histórico apoia a comunicação entre as equipes e a análise do andamento da obra.",
   "sources": [
     {
-      "label": "ABCP — Boletim técnico BT-107: Produção de blocos de concreto para alvenaria, seção sobre agregados",
-      "url": "https://abcp.org.br/wp-content/uploads/2016/01/BT-107_Producao_blocos_alvenaria_PR.pdf"
+      "label": "Portal de Compras do Governo Federal — Manual de Obras Públicas: Edificações, Construção, anexo de fiscalização",
+      "url": "https://www.gov.br/compras/pt-br/acesso-a-informacao/manuais/manual-obras-publicas-edificacoes-praticas-da-seap-manuais/manual_obraspublicas_construcao.pdf/@@download/file"
     }
   ]
 }
