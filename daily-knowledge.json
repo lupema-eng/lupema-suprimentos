@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-03",
-  "title": "Diário de obra: registre o contexto da execução a cada dia",
-  "text": "O diário de obra reúne informações do andamento diário dos serviços. Registre as atividades em execução, o efetivo de pessoal, a entrada e a saída de equipamentos, as condições climáticas e as visitas ao canteiro. Organize também as comunicações sobre irregularidades, providências e ajustes no planejamento nos registros de ocorrências correspondentes. Descrições claras, vinculadas à data e ao serviço, ajudam a reconstruir o contexto da execução e a acompanhar as decisões tomadas. Esse histórico apoia a comunicação entre as equipes e a análise do andamento da obra.",
+  "publishedOn": "2026-11-04",
+  "title": "Qualidade: entenda a diferença entre correção e ação corretiva",
+  "text": "Na gestão da qualidade, correção e ação corretiva têm finalidades diferentes. A correção trata a falha existente, por meio de um ajuste ou retrabalho. Já a ação corretiva busca eliminar as causas que originaram o problema, para evitar sua repetição. Ela pode envolver mudanças em procedimentos ou sistemas. Ao analisar uma ocorrência, diferencie o que foi feito para corrigir o resultado do que precisa mudar no processo. Essa distinção ajuda a orientar a investigação e as melhorias, em vez de limitar a resposta ao problema pontual.",
   "sources": [
     {
-      "label": "Portal de Compras do Governo Federal — Manual de Obras Públicas: Edificações, Construção, anexo de fiscalização",
-      "url": "https://www.gov.br/compras/pt-br/acesso-a-informacao/manuais/manual-obras-publicas-edificacoes-praticas-da-seap-manuais/manual_obraspublicas_construcao.pdf/@@download/file"
+      "label": "Ministério da Saúde — Vocabulário da Saúde em Qualidade e Melhoria da Gestão",
+      "url": "https://bvsms.saude.gov.br/bvs/publicacoes/vocabulario_qualidade.pdf"
     }
   ]
 }
