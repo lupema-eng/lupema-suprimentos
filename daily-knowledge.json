@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-04",
-  "title": "Qualidade: entenda a diferença entre correção e ação corretiva",
-  "text": "Na gestão da qualidade, correção e ação corretiva têm finalidades diferentes. A correção trata a falha existente, por meio de um ajuste ou retrabalho. Já a ação corretiva busca eliminar as causas que originaram o problema, para evitar sua repetição. Ela pode envolver mudanças em procedimentos ou sistemas. Ao analisar uma ocorrência, diferencie o que foi feito para corrigir o resultado do que precisa mudar no processo. Essa distinção ajuda a orientar a investigação e as melhorias, em vez de limitar a resposta ao problema pontual.",
+  "publishedOn": "2026-11-05",
+  "title": "Rastreabilidade do concreto: conecte o fornecimento ao local de aplicação",
+  "text": "A rastreabilidade do concreto permite relacionar o material recebido aos locais onde foi aplicado. Organize o controle com data, fornecedor, nota fiscal, volume e identificação do pavimento e dos elementos concretados. Vincule essas informações aos resultados dos ensaios e aos pareceres técnicos correspondentes. Um mapa de concretagem complementa a planilha ao representar graficamente os locais de aplicação de cada fornecimento. Esses registros facilitam a comunicação entre obra e projetista e apoiam a análise de eventuais divergências. Mantenha as informações coerentes entre os documentos para que o histórico possa ser consultado sem ambiguidades.",
   "sources": [
     {
-      "label": "Ministério da Saúde — Vocabulário da Saúde em Qualidade e Melhoria da Gestão",
-      "url": "https://bvsms.saude.gov.br/bvs/publicacoes/vocabulario_qualidade.pdf"
+      "label": "ABECE — Recomendação 004/2021: controle de concreto e rastreabilidade, anexo E",
+      "url": "https://site.abece.com.br/wp-content/uploads/2022/01/Recomendacao-ABECE-004_2021.pdf"
     }
   ]
 }
