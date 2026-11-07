@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-06",
-  "title": "Inventário físico: confira o estoque antes de planejar novas compras",
-  "text": "O inventário físico compara as quantidades existentes no estoque com os registros de controle. Mantenha as entradas e saídas atualizadas e documente as transferências de materiais entre depósitos ou unidades. Nas conferências periódicas, verifique os saldos e as condições dos itens, identificando materiais sem uso ou que perderam suas características. Registre as diferenças encontradas para análise e regularização dos controles. A revisão do estoque também apoia o planejamento da reposição: antes de comprar, confira o que já está disponível e pode atender à necessidade.",
+  "publishedOn": "2026-11-07",
+  "title": "Planejamento semanal: verifique as restrições antes de assumir metas",
+  "text": "O planejamento de médio prazo conecta o cronograma geral à programação semanal, antecipando impedimentos à execução. Antes de definir as tarefas da semana, analise as restrições e a disponibilidade de materiais, mão de obra, equipamentos e condições logísticas. Detalhe a programação por local, equipe e dia, para deixar claro o trabalho previsto. Nas reuniões de produção, acompanhe os resultados e identifique as causas das atividades não cumpridas. Esse acompanhamento permite tratar os impedimentos e ajustar os próximos planos com base nas condições reais da obra.",
   "sources": [
     {
-      "label": "Portal do Patrimônio — IN SEDAP nº 205/1988: controle de estoques e inventários físicos, itens 7 e 8",
-      "url": "https://www.gov.br/patrimonio/pt-br/central-de-conteudo/legislacao/instrucoes-normativas/instrucao-normativa-no-205-de-08-de-abril-de-1988"
+      "label": "Olivieri, Granja e Picchi — Planejamento tradicional, Location-Based Management System e Last Planner System: um modelo integrado (Ambiente Construído, 2016)",
+      "url": "https://www.scielo.br/j/ac/a/hgNBcP7YfBXVYpzV3QsCkrJ/?lang=pt"
     }
   ]
 }
