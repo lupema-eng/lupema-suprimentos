@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-07",
-  "title": "Planejamento semanal: verifique as restrições antes de assumir metas",
-  "text": "O planejamento de médio prazo conecta o cronograma geral à programação semanal, antecipando impedimentos à execução. Antes de definir as tarefas da semana, analise as restrições e a disponibilidade de materiais, mão de obra, equipamentos e condições logísticas. Detalhe a programação por local, equipe e dia, para deixar claro o trabalho previsto. Nas reuniões de produção, acompanhe os resultados e identifique as causas das atividades não cumpridas. Esse acompanhamento permite tratar os impedimentos e ajustar os próximos planos com base nas condições reais da obra.",
+  "publishedOn": "2026-11-08",
+  "title": "Hidratação do cimento: entenda o papel da água no endurecimento",
+  "text": "Ao entrar em contato com a água, o cimento Portland reage e forma produtos hidratados que promovem o endurecimento e o desenvolvimento de resistência. A água, portanto, participa da transformação do material e também facilita a preparação da mistura. O endurecimento não depende apenas da secagem: o cimento pode endurecer e conservar suas características mesmo submerso. Para concretos e argamassas, a composição da mistura deve ser definida por estudos de dosagem adequados às premissas do projeto.",
   "sources": [
     {
-      "label": "Olivieri, Granja e Picchi — Planejamento tradicional, Location-Based Management System e Last Planner System: um modelo integrado (Ambiente Construído, 2016)",
-      "url": "https://www.scielo.br/j/ac/a/hgNBcP7YfBXVYpzV3QsCkrJ/?lang=pt"
+      "label": "ABCP — Perguntas frequentes: reação do cimento com a água e estudos de dosagem",
+      "url": "https://abcp.org.br/perguntas-frequentes/"
     }
   ]
 }
