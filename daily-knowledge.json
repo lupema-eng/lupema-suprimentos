@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-08",
-  "title": "Hidratação do cimento: entenda o papel da água no endurecimento",
-  "text": "Ao entrar em contato com a água, o cimento Portland reage e forma produtos hidratados que promovem o endurecimento e o desenvolvimento de resistência. A água, portanto, participa da transformação do material e também facilita a preparação da mistura. O endurecimento não depende apenas da secagem: o cimento pode endurecer e conservar suas características mesmo submerso. Para concretos e argamassas, a composição da mistura deve ser definida por estudos de dosagem adequados às premissas do projeto.",
+  "publishedOn": "2026-11-09",
+  "title": "Lições aprendidas: transforme experiências em melhorias para os próximos projetos",
+  "text": "Lições aprendidas são conhecimentos obtidos durante um projeto, tanto com dificuldades quanto com práticas bem-sucedidas. Registre os procedimentos utilizados, os resultados observados e as alternativas que poderiam ter sido adotadas. Organize os relatos por assunto, como prazo, escopo, comunicação ou aquisições, para facilitar a consulta. Reúna essas informações ao longo das etapas e revise-as com a equipe no encerramento. O objetivo é formar uma referência útil para futuros planejamentos, compartilhar acertos e reduzir a repetição de erros e atrasos.",
   "sources": [
     {
-      "label": "ABCP — Perguntas frequentes: reação do cimento com a água e estudos de dosagem",
-      "url": "https://abcp.org.br/perguntas-frequentes/"
+      "label": "CGU — Metodologia de Gestão de Projetos Estratégicos (2023), glossário e seção 4.2: Registrar Lições Aprendidas",
+      "url": "https://basedeconhecimento.cgu.gov.br/server/api/core/bitstreams/1ff86710-6d5b-421e-b2ff-cd2d51827d02/content"
     }
   ]
 }
