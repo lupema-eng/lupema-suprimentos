@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-09",
-  "title": "Lições aprendidas: transforme experiências em melhorias para os próximos projetos",
-  "text": "Lições aprendidas são conhecimentos obtidos durante um projeto, tanto com dificuldades quanto com práticas bem-sucedidas. Registre os procedimentos utilizados, os resultados observados e as alternativas que poderiam ter sido adotadas. Organize os relatos por assunto, como prazo, escopo, comunicação ou aquisições, para facilitar a consulta. Reúna essas informações ao longo das etapas e revise-as com a equipe no encerramento. O objetivo é formar uma referência útil para futuros planejamentos, compartilhar acertos e reduzir a repetição de erros e atrasos.",
+  "publishedOn": "2026-11-10",
+  "title": "Recebimento de materiais: confira documentos, quantidade e especificação",
+  "text": "O recebimento de materiais envolve três verificações complementares. A documental compara a nota fiscal com o pedido e as condições de fornecimento. A quantitativa confronta o que foi entregue com as quantidades solicitadas e faturadas. A qualitativa verifica se o produto atende às características e aos requisitos técnicos previstos na compra. Quando houver dúvida técnica, consulte catálogos, manuais, desenhos ou o responsável pela solicitação. A aprovação do material deve considerar o resultado dessas conferências; contar os volumes entregues, por si só, não comprova a conformidade do produto.",
   "sources": [
     {
-      "label": "CGU — Metodologia de Gestão de Projetos Estratégicos (2023), glossário e seção 4.2: Registrar Lições Aprendidas",
-      "url": "https://basedeconhecimento.cgu.gov.br/server/api/core/bitstreams/1ff86710-6d5b-421e-b2ff-cd2d51827d02/content"
+      "label": "Secretaria da Administração da Bahia — Gestão de Material em Almoxarifado na Administração Pública Estadual, seção 4.5.1: Recebimento",
+      "url": "https://www.ba.gov.br/administracao/sites/site-saeb/files/migracao_2024/uploads/Manual_de_Gestao_de_Material_em_Almoxarifado.pdf"
     }
   ]
 }
