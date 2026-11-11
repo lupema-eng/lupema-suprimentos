@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-10",
-  "title": "Recebimento de materiais: confira documentos, quantidade e especificação",
-  "text": "O recebimento de materiais envolve três verificações complementares. A documental compara a nota fiscal com o pedido e as condições de fornecimento. A quantitativa confronta o que foi entregue com as quantidades solicitadas e faturadas. A qualitativa verifica se o produto atende às características e aos requisitos técnicos previstos na compra. Quando houver dúvida técnica, consulte catálogos, manuais, desenhos ou o responsável pela solicitação. A aprovação do material deve considerar o resultado dessas conferências; contar os volumes entregues, por si só, não comprova a conformidade do produto.",
+  "publishedOn": "2026-11-11",
+  "title": "EAP: organize as entregas para detalhar o planejamento",
+  "text": "A Estrutura Analítica do Projeto (EAP) organiza o escopo em uma representação das entregas previstas. Ela permite visualizar o conjunto do projeto e seus desdobramentos. Comece identificando os principais produtos ou etapas e, durante o planejamento, detalhe as atividades necessárias para realizá-los. A equipe pode então identificar tarefas, responsáveis, dependências e recursos. Ajuste a profundidade do detalhamento à necessidade do projeto: níveis adicionais podem facilitar o acompanhamento, mas também aumentam o esforço de gestão. Mantenha a estrutura coerente com as entregas e os objetivos aprovados.",
   "sources": [
     {
-      "label": "Secretaria da Administração da Bahia — Gestão de Material em Almoxarifado na Administração Pública Estadual, seção 4.5.1: Recebimento",
-      "url": "https://www.ba.gov.br/administracao/sites/site-saeb/files/migracao_2024/uploads/Manual_de_Gestao_de_Material_em_Almoxarifado.pdf"
+      "label": "CGU — Metodologia de Gestão de Projetos Estratégicos (2023), seções 1.7, 2.3 e 2.4",
+      "url": "https://basedeconhecimento.cgu.gov.br/server/api/core/bitstreams/1ff86710-6d5b-421e-b2ff-cd2d51827d02/content"
     }
   ]
 }
