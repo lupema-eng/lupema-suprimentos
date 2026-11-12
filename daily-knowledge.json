@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-11",
-  "title": "EAP: organize as entregas para detalhar o planejamento",
-  "text": "A Estrutura Analítica do Projeto (EAP) organiza o escopo em uma representação das entregas previstas. Ela permite visualizar o conjunto do projeto e seus desdobramentos. Comece identificando os principais produtos ou etapas e, durante o planejamento, detalhe as atividades necessárias para realizá-los. A equipe pode então identificar tarefas, responsáveis, dependências e recursos. Ajuste a profundidade do detalhamento à necessidade do projeto: níveis adicionais podem facilitar o acompanhamento, mas também aumentam o esforço de gestão. Mantenha a estrutura coerente com as entregas e os objetivos aprovados.",
+  "publishedOn": "2026-11-12",
+  "title": "Juntas de movimentação: planeje sua função no revestimento de fachada",
+  "text": "O revestimento cerâmico de fachada está sujeito a deformações da base e a variações de temperatura e umidade. As juntas de movimentação dividem a superfície revestida e ajudam a acomodar essas movimentações, reduzindo a transmissão de esforços entre partes do sistema. Seu planejamento deve ocorrer antes do início do revestimento, considerando os materiais, o tipo de junta, sua posição e suas dimensões. Esses detalhes precisam integrar a definição técnica do serviço para que a execução corresponda à função prevista para cada junta.",
   "sources": [
     {
-      "label": "CGU — Metodologia de Gestão de Projetos Estratégicos (2023), seções 1.7, 2.3 e 2.4",
-      "url": "https://basedeconhecimento.cgu.gov.br/server/api/core/bitstreams/1ff86710-6d5b-421e-b2ff-cd2d51827d02/content"
+      "label": "Santos, Renato Perillo dos — Juntas de movimentação em revestimentos cerâmicos de fachadas (2016), Repositório FUPAC/UNIPAC",
+      "url": "https://ri.unipac.br/repositorio/trabalhos-academicos/juntas-de-movimentacao-em-revestimentos-ceramicos-de-fachadas/"
     }
   ]
 }
