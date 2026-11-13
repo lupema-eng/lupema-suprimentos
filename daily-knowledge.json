@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-12",
-  "title": "Juntas de movimentação: planeje sua função no revestimento de fachada",
-  "text": "O revestimento cerâmico de fachada está sujeito a deformações da base e a variações de temperatura e umidade. As juntas de movimentação dividem a superfície revestida e ajudam a acomodar essas movimentações, reduzindo a transmissão de esforços entre partes do sistema. Seu planejamento deve ocorrer antes do início do revestimento, considerando os materiais, o tipo de junta, sua posição e suas dimensões. Esses detalhes precisam integrar a definição técnica do serviço para que a execução corresponda à função prevista para cada junta.",
+  "publishedOn": "2026-11-13",
+  "title": "Curva ABC: priorize o controle dos materiais pelo valor de consumo",
+  "text": "A curva ABC ajuda a identificar os materiais que concentram maior valor de consumo em determinado período. Para essa análise, multiplique a quantidade consumida de cada item pelo valor unitário e ordene os resultados do maior para o menor. A classe A reúne os itens de maior representatividade; B e C correspondem às faixas intermediária e menor. Os limites entre as classes podem ser ajustados ao contexto analisado. Use essa classificação para direcionar o esforço de controle e complemente-a com a importância operacional dos materiais, considerando o impacto de uma eventual falta.",
   "sources": [
     {
-      "label": "Santos, Renato Perillo dos — Juntas de movimentação em revestimentos cerâmicos de fachadas (2016), Repositório FUPAC/UNIPAC",
-      "url": "https://ri.unipac.br/repositorio/trabalhos-academicos/juntas-de-movimentacao-em-revestimentos-ceramicos-de-fachadas/"
+      "label": "Fenili, Renato Ribeiro — Gestão de Materiais (Enap, 2015), seções 2.6 e 2.7",
+      "url": "https://repositorio.enap.gov.br/bitstream/1/2268/1/Enap%20Did%C3%A1ticos%20-%20Gest%C3%A3o%20de%20Materiais.pdf"
     }
   ]
 }
