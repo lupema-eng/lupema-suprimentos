@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-13",
-  "title": "Curva ABC: priorize o controle dos materiais pelo valor de consumo",
-  "text": "A curva ABC ajuda a identificar os materiais que concentram maior valor de consumo em determinado período. Para essa análise, multiplique a quantidade consumida de cada item pelo valor unitário e ordene os resultados do maior para o menor. A classe A reúne os itens de maior representatividade; B e C correspondem às faixas intermediária e menor. Os limites entre as classes podem ser ajustados ao contexto analisado. Use essa classificação para direcionar o esforço de controle e complemente-a com a importância operacional dos materiais, considerando o impacto de uma eventual falta.",
+  "publishedOn": "2026-11-14",
+  "title": "Chapisco, emboço e reboco: entenda a função de cada camada",
+  "text": "Nos revestimentos tradicionais de argamassa, cada camada cumpre uma função. O chapisco favorece a aderência das camadas seguintes à base. O emboço regulariza a superfície e serve de apoio para o reboco. O reboco forma a camada de acabamento preparada para receber pintura. Para acompanhar a qualidade do serviço, consulte as especificações e verifique os materiais, a limpeza da base, o prumo, o alinhamento e o acabamento previstos. A definição do sistema e de suas camadas deve seguir o projeto e as especificações técnicas da obra.",
   "sources": [
     {
-      "label": "Fenili, Renato Ribeiro — Gestão de Materiais (Enap, 2015), seções 2.6 e 2.7",
-      "url": "https://repositorio.enap.gov.br/bitstream/1/2268/1/Enap%20Did%C3%A1ticos%20-%20Gest%C3%A3o%20de%20Materiais.pdf"
+      "label": "IFAM — Manual de Gestão e Fiscalização de Contratos Administrativos, seção 7.0: Revestimentos",
+      "url": "https://www2.ifam.edu.br/pro-reitorias/adminitracao/setores/daf/dam/contratos-e-convenios/arquivos/manual-de-gestao-e-fiscalizacao-de-contratos-ifam.pdf"
     }
   ]
 }
