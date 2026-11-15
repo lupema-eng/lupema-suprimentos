@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-14",
-  "title": "Chapisco, emboço e reboco: entenda a função de cada camada",
-  "text": "Nos revestimentos tradicionais de argamassa, cada camada cumpre uma função. O chapisco favorece a aderência das camadas seguintes à base. O emboço regulariza a superfície e serve de apoio para o reboco. O reboco forma a camada de acabamento preparada para receber pintura. Para acompanhar a qualidade do serviço, consulte as especificações e verifique os materiais, a limpeza da base, o prumo, o alinhamento e o acabamento previstos. A definição do sistema e de suas camadas deve seguir o projeto e as especificações técnicas da obra.",
+  "publishedOn": "2026-11-15",
+  "title": "PDCA: acompanhe os resultados para melhorar os processos",
+  "text": "O ciclo PDCA organiza a melhoria contínua em quatro etapas. Planejar significa definir os resultados esperados e metas mensuráveis. Executar é colocar o plano em prática. Verificar envolve analisar os dados e comparar os resultados com o que foi previsto. Agir consiste em usar essa análise para corrigir desvios e consolidar as práticas que funcionaram. A melhoria exige acompanhamento ao longo do tempo: após ajustar o processo, verifique novamente seu desempenho. Essa sequência ajuda a orientar mudanças com base em resultados observados.",
   "sources": [
     {
-      "label": "IFAM — Manual de Gestão e Fiscalização de Contratos Administrativos, seção 7.0: Revestimentos",
-      "url": "https://www2.ifam.edu.br/pro-reitorias/adminitracao/setores/daf/dam/contratos-e-convenios/arquivos/manual-de-gestao-e-fiscalizacao-de-contratos-ifam.pdf"
+      "label": "Ministério do Planejamento e Orçamento — Guia Metodológico de Gestão de Processos, Caderno 3 (2024): Gestão Contínua de Processos",
+      "url": "https://www.gov.br/planejamento/pt-br/acesso-a-informacao/acoes-e-programas/governanca/gestao-estrategica/documentos/caderno-3-processos.pdf/@@display-file/file"
     }
   ]
 }
