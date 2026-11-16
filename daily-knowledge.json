@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-15",
-  "title": "PDCA: acompanhe os resultados para melhorar os processos",
-  "text": "O ciclo PDCA organiza a melhoria contínua em quatro etapas. Planejar significa definir os resultados esperados e metas mensuráveis. Executar é colocar o plano em prática. Verificar envolve analisar os dados e comparar os resultados com o que foi previsto. Agir consiste em usar essa análise para corrigir desvios e consolidar as práticas que funcionaram. A melhoria exige acompanhamento ao longo do tempo: após ajustar o processo, verifique novamente seu desempenho. Essa sequência ajuda a orientar mudanças com base em resultados observados.",
+  "publishedOn": "2026-11-16",
+  "title": "Controle de versões: mantenha os documentos corretos disponíveis para uso",
+  "text": "O controle de documentos ajuda a manter disponíveis as informações aprovadas e atualizadas para cada atividade. Uma lista mestra pode reunir a identificação do documento, sua versão vigente e os locais onde existem cópias. Ao revisar um procedimento, registre a data e o histórico das alterações, submeta-o à aprovação e comunique a atualização aos usuários. Retire de circulação as cópias substituídas. Quando versões antigas forem preservadas para consulta histórica, identifique-as como obsoletas. Esse cuidado facilita a rastreabilidade e reduz o risco de utilizar orientações desatualizadas.",
   "sources": [
     {
-      "label": "Ministério do Planejamento e Orçamento — Guia Metodológico de Gestão de Processos, Caderno 3 (2024): Gestão Contínua de Processos",
-      "url": "https://www.gov.br/planejamento/pt-br/acesso-a-informacao/acoes-e-programas/governanca/gestao-estrategica/documentos/caderno-3-processos.pdf/@@display-file/file"
+      "label": "Ebserh — Manual para Gestão e Controle de Documentos da Qualidade (2024), seções 4.9, 5.1 e 5.4",
+      "url": "https://www.gov.br/hubrasil/pt-br/acesso-a-informacao/boletim-de-servico/sede/2024/anexos-2024/manual-para-gestao-e-controle-de-documentos-da-qualidade-v2"
     }
   ]
 }
