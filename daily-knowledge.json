@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-16",
-  "title": "Controle de versões: mantenha os documentos corretos disponíveis para uso",
-  "text": "O controle de documentos ajuda a manter disponíveis as informações aprovadas e atualizadas para cada atividade. Uma lista mestra pode reunir a identificação do documento, sua versão vigente e os locais onde existem cópias. Ao revisar um procedimento, registre a data e o histórico das alterações, submeta-o à aprovação e comunique a atualização aos usuários. Retire de circulação as cópias substituídas. Quando versões antigas forem preservadas para consulta histórica, identifique-as como obsoletas. Esse cuidado facilita a rastreabilidade e reduz o risco de utilizar orientações desatualizadas.",
+  "publishedOn": "2026-11-17",
+  "title": "Composição de serviço: entenda como insumos e coeficientes formam o custo",
+  "text": "A composição de custo unitário detalha os materiais, a mão de obra e os equipamentos necessários para executar uma unidade de serviço. Seus coeficientes representam os consumos e os tempos considerados nessa execução. Multiplicar o custo de cada insumo pelo respectivo coeficiente e somar as parcelas permite obter o custo unitário direto do serviço. Ao selecionar uma composição de referência, confira sua compatibilidade com as especificações técnicas e as características da obra. Registre as fontes e a memória de cálculo para permitir a conferência do orçamento.",
   "sources": [
     {
-      "label": "Ebserh — Manual para Gestão e Controle de Documentos da Qualidade (2024), seções 4.9, 5.1 e 5.4",
-      "url": "https://www.gov.br/hubrasil/pt-br/acesso-a-informacao/boletim-de-servico/sede/2024/anexos-2024/manual-para-gestao-e-controle-de-documentos-da-qualidade-v2"
+      "label": "TCU — Obras Públicas: Recomendações Básicas para a Contratação e Fiscalização de Obras de Edificações Públicas (2014), seção 5.2.5.1",
+      "url": "https://portal.tcu.gov.br/data/files/1E/26/8A/06/23DEF610F5680BF6F18818A8/Obras_publicas_recomendacoes_basicas_contratacao_fiscalizacao_obras_edificacoes_publicas_4_edicao.PDF"
     }
   ]
 }
