@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-17",
-  "title": "Composição de serviço: entenda como insumos e coeficientes formam o custo",
-  "text": "A composição de custo unitário detalha os materiais, a mão de obra e os equipamentos necessários para executar uma unidade de serviço. Seus coeficientes representam os consumos e os tempos considerados nessa execução. Multiplicar o custo de cada insumo pelo respectivo coeficiente e somar as parcelas permite obter o custo unitário direto do serviço. Ao selecionar uma composição de referência, confira sua compatibilidade com as especificações técnicas e as características da obra. Registre as fontes e a memória de cálculo para permitir a conferência do orçamento.",
+  "publishedOn": "2026-11-18",
+  "title": "Calibração e verificação: entenda o objetivo de cada operação",
+  "text": "A calibração estabelece uma relação entre as indicações de um instrumento e os valores de referência de padrões, considerando as condições da comparação e as incertezas de medição. Essa relação costuma ser registrada em um certificado de calibração. A verificação, por sua vez, reúne evidências de que um equipamento atende a requisitos previamente definidos. Ao planejar o controle dos instrumentos, identifique qual dessas informações é necessária: conhecer a relação entre as medições ou demonstrar o atendimento aos requisitos de uso.",
   "sources": [
     {
-      "label": "TCU — Obras Públicas: Recomendações Básicas para a Contratação e Fiscalização de Obras de Edificações Públicas (2014), seção 5.2.5.1",
-      "url": "https://portal.tcu.gov.br/data/files/1E/26/8A/06/23DEF610F5680BF6F18818A8/Obras_publicas_recomendacoes_basicas_contratacao_fiscalizacao_obras_edificacoes_publicas_4_edicao.PDF"
+      "label": "Inmetro — Perguntas frequentes de Acreditação: Qual a diferença de calibração e verificação?",
+      "url": "https://www.gov.br/inmetro/pt-br/acesso-a-informacao/perguntas-frequentes/acreditacao/qual-a-diferenca-de-calibracao-e-verificacao"
     }
   ]
 }
