@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-18",
-  "title": "Calibração e verificação: entenda o objetivo de cada operação",
-  "text": "A calibração estabelece uma relação entre as indicações de um instrumento e os valores de referência de padrões, considerando as condições da comparação e as incertezas de medição. Essa relação costuma ser registrada em um certificado de calibração. A verificação, por sua vez, reúne evidências de que um equipamento atende a requisitos previamente definidos. Ao planejar o controle dos instrumentos, identifique qual dessas informações é necessária: conhecer a relação entre as medições ou demonstrar o atendimento aos requisitos de uso.",
+  "publishedOn": "2026-11-19",
+  "title": "Prazo de reposição: considere o processo de compra até o recebimento",
+  "text": "O tempo de reposição, também chamado de lead time, corresponde ao intervalo entre a emissão do pedido e a chegada do material ao almoxarifado. Ele abrange o processamento da compra, as tarefas do fornecedor e o recebimento. Durante esse intervalo, o consumo pode continuar. Por isso, o planejamento da reposição precisa considerar a demanda prevista e o saldo disponível até a entrega. Ao estimar esse prazo, avalie o histórico de atrasos e de entregas em desacordo com as especificações, que podem comprometer a continuidade do abastecimento.",
   "sources": [
     {
-      "label": "Inmetro — Perguntas frequentes de Acreditação: Qual a diferença de calibração e verificação?",
-      "url": "https://www.gov.br/inmetro/pt-br/acesso-a-informacao/perguntas-frequentes/acreditacao/qual-a-diferenca-de-calibracao-e-verificacao"
+      "label": "Fenili, Renato Ribeiro — Gestão de Materiais (Enap, 2015), capítulo 3, seções 5 e 5.1",
+      "url": "https://repositorio.enap.gov.br/bitstream/1/2268/1/Enap%20Did%C3%A1ticos%20-%20Gest%C3%A3o%20de%20Materiais.pdf"
     }
   ]
 }
