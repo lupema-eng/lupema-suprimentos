@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-19",
-  "title": "Prazo de reposição: considere o processo de compra até o recebimento",
-  "text": "O tempo de reposição, também chamado de lead time, corresponde ao intervalo entre a emissão do pedido e a chegada do material ao almoxarifado. Ele abrange o processamento da compra, as tarefas do fornecedor e o recebimento. Durante esse intervalo, o consumo pode continuar. Por isso, o planejamento da reposição precisa considerar a demanda prevista e o saldo disponível até a entrega. Ao estimar esse prazo, avalie o histórico de atrasos e de entregas em desacordo com as especificações, que podem comprometer a continuidade do abastecimento.",
+  "publishedOn": "2026-11-20",
+  "title": "Marcos do cronograma: pontos de verificação das entregas",
+  "text": "Um marco sinaliza um acontecimento relevante do projeto, como a conclusão de uma etapa ou a disponibilização de uma entrega. No cronograma, ele tem duração zero: representa um ponto de verificação, enquanto as atividades necessárias para alcançá-lo consomem tempo. Definir marcos ajuda a equipe e os demais interessados a acompanhar o progresso. Na prática, descreva o resultado que deverá estar concluído, como “planejamento concluído”, e acompanhe as atividades que levam até ele. Assim, o cronograma comunica tanto o trabalho previsto quanto os momentos importantes de sua conclusão.",
   "sources": [
     {
-      "label": "Fenili, Renato Ribeiro — Gestão de Materiais (Enap, 2015), capítulo 3, seções 5 e 5.1",
-      "url": "https://repositorio.enap.gov.br/bitstream/1/2268/1/Enap%20Did%C3%A1ticos%20-%20Gest%C3%A3o%20de%20Materiais.pdf"
+      "label": "CGU — Metodologia de Gestão de Projetos Estratégicos (2023), seção 2.9",
+      "url": "https://basedeconhecimento.cgu.gov.br/server/api/core/bitstreams/1ff86710-6d5b-421e-b2ff-cd2d51827d02/content"
     }
   ]
 }
