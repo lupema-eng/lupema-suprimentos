@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-20",
-  "title": "Marcos do cronograma: pontos de verificação das entregas",
-  "text": "Um marco sinaliza um acontecimento relevante do projeto, como a conclusão de uma etapa ou a disponibilização de uma entrega. No cronograma, ele tem duração zero: representa um ponto de verificação, enquanto as atividades necessárias para alcançá-lo consomem tempo. Definir marcos ajuda a equipe e os demais interessados a acompanhar o progresso. Na prática, descreva o resultado que deverá estar concluído, como “planejamento concluído”, e acompanhe as atividades que levam até ele. Assim, o cronograma comunica tanto o trabalho previsto quanto os momentos importantes de sua conclusão.",
+  "publishedOn": "2026-11-21",
+  "title": "Pintura: a preparação começa pela avaliação da superfície",
+  "text": "A preparação para pintura envolve avaliar a superfície e identificar umidade, impurezas, irregularidades e outros problemas que possam comprometer o acabamento. O tipo de base e suas condições orientam a escolha dos métodos de limpeza e regularização. O planejamento também deve considerar as especificações do projeto e os materiais necessários para cada etapa do preparo. Fundos, massas e tintas possuem características e requisitos próprios de aplicação. Por isso, a análise da superfície e das referências técnicas faz parte do serviço e precisa entrar no planejamento e no levantamento de materiais.",
   "sources": [
     {
-      "label": "CGU — Metodologia de Gestão de Projetos Estratégicos (2023), seção 2.9",
-      "url": "https://basedeconhecimento.cgu.gov.br/server/api/core/bitstreams/1ff86710-6d5b-421e-b2ff-cd2d51827d02/content"
+      "label": "SENAI-RS — Plano de Curso Pintor de Obras Imobiliárias (março de 2025), páginas 27–28 e 40–42",
+      "url": "https://www.senairs.org.br/sites/default/files/paragraph--files/pc_qpb_pintor_obras_imobiliarias_180h.pdf"
     }
   ]
 }
