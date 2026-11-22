@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-21",
-  "title": "Pintura: a preparação começa pela avaliação da superfície",
-  "text": "A preparação para pintura envolve avaliar a superfície e identificar umidade, impurezas, irregularidades e outros problemas que possam comprometer o acabamento. O tipo de base e suas condições orientam a escolha dos métodos de limpeza e regularização. O planejamento também deve considerar as especificações do projeto e os materiais necessários para cada etapa do preparo. Fundos, massas e tintas possuem características e requisitos próprios de aplicação. Por isso, a análise da superfície e das referências técnicas faz parte do serviço e precisa entrar no planejamento e no levantamento de materiais.",
+  "publishedOn": "2026-11-22",
+  "title": "Materiais: descrição clara e código único ajudam a organizar o catálogo",
+  "text": "Especificar um material é descrever suas características de modo que ele possa ser identificado em uma linguagem compreendida pelo mercado. Conforme o item, essa descrição pode incluir composição, dimensões, acabamento, apresentação e acondicionamento. A codificação atribui a cada item um identificador único, formado por números, letras ou ambos. Já a padronização uniformiza tipos e usos de materiais, facilitando a comunicação e o controle. Um catálogo organizado reúne descrições e códigos consistentes, servindo como referência para compras e gestão de estoques.",
   "sources": [
     {
-      "label": "SENAI-RS — Plano de Curso Pintor de Obras Imobiliárias (março de 2025), páginas 27–28 e 40–42",
-      "url": "https://www.senairs.org.br/sites/default/files/paragraph--files/pc_qpb_pintor_obras_imobiliarias_180h.pdf"
+      "label": "Fenili, Renato Ribeiro — Gestão de Materiais (Enap, 2015), capítulo 2, seção 1.2, páginas 26–27",
+      "url": "https://repositorio.enap.gov.br/server/api/core/bitstreams/57bce870-20c5-42a6-b40e-91fc5dec0b9d/content"
     }
   ]
 }
