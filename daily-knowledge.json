@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-22",
-  "title": "Materiais: descrição clara e código único ajudam a organizar o catálogo",
-  "text": "Especificar um material é descrever suas características de modo que ele possa ser identificado em uma linguagem compreendida pelo mercado. Conforme o item, essa descrição pode incluir composição, dimensões, acabamento, apresentação e acondicionamento. A codificação atribui a cada item um identificador único, formado por números, letras ou ambos. Já a padronização uniformiza tipos e usos de materiais, facilitando a comunicação e o controle. Um catálogo organizado reúne descrições e códigos consistentes, servindo como referência para compras e gestão de estoques.",
+  "publishedOn": "2026-11-23",
+  "title": "Linha de base: a referência aprovada para acompanhar o projeto",
+  "text": "A linha de base é o plano aprovado do projeto, considerando as mudanças posteriormente aprovadas. Ela permite comparar o desempenho real com o compromisso assumido e identificar desvios de escopo, prazo e custo. Durante o acompanhamento, a situação das atividades precisa ser atualizada para que essa comparação reflita o progresso realizado. Alterações no projeto também exigem avaliação de seus impactos e registro. Quando forem substanciais, devem passar pelas instâncias responsáveis pela decisão e aprovação. Assim, o controle reúne uma referência definida, informações de execução e mudanças formalmente tratadas.",
   "sources": [
     {
-      "label": "Fenili, Renato Ribeiro — Gestão de Materiais (Enap, 2015), capítulo 2, seção 1.2, páginas 26–27",
-      "url": "https://repositorio.enap.gov.br/server/api/core/bitstreams/57bce870-20c5-42a6-b40e-91fc5dec0b9d/content"
+      "label": "CGU — Metodologia de Gestão de Projetos Estratégicos (2023), glossário e seções 2.15, 3.3 e 3.7",
+      "url": "https://basedeconhecimento.cgu.gov.br/server/api/core/bitstreams/1ff86710-6d5b-421e-b2ff-cd2d51827d02/content"
     }
   ]
 }
