@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-23",
-  "title": "Linha de base: a referência aprovada para acompanhar o projeto",
-  "text": "A linha de base é o plano aprovado do projeto, considerando as mudanças posteriormente aprovadas. Ela permite comparar o desempenho real com o compromisso assumido e identificar desvios de escopo, prazo e custo. Durante o acompanhamento, a situação das atividades precisa ser atualizada para que essa comparação reflita o progresso realizado. Alterações no projeto também exigem avaliação de seus impactos e registro. Quando forem substanciais, devem passar pelas instâncias responsáveis pela decisão e aprovação. Assim, o controle reúne uma referência definida, informações de execução e mudanças formalmente tratadas.",
+  "publishedOn": "2026-11-24",
+  "title": "Cimento e concreto: entenda a diferença entre os materiais",
+  "text": "O cimento é um dos componentes do concreto. Trata-se de um material finamente moído que reage com a água, formando uma pasta que endurece. O concreto resulta da combinação de cimento, água e agregados, como areia e pedra, podendo também conter aditivos. A pasta endurecida une os agregados. No estado fresco, o concreto pode ser moldado; após o início do endurecimento, continua desenvolvendo resistência. Conhecer essa diferença ajuda a distinguir o componente da mistura final ao descrever materiais em consultas, cadastros e solicitações.",
   "sources": [
     {
-      "label": "CGU — Metodologia de Gestão de Projetos Estratégicos (2023), glossário e seções 2.15, 3.3 e 3.7",
-      "url": "https://basedeconhecimento.cgu.gov.br/server/api/core/bitstreams/1ff86710-6d5b-421e-b2ff-cd2d51827d02/content"
+      "label": "ABESC — Manual do Concreto Dosado em Central (abril de 2007), seção Cimento e Concreto, página 5",
+      "url": "https://abesc.org.br/assets/files/manual-cdc.pdf"
     }
   ]
 }
