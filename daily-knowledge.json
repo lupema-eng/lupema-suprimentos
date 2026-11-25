@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-24",
-  "title": "Cimento e concreto: entenda a diferença entre os materiais",
-  "text": "O cimento é um dos componentes do concreto. Trata-se de um material finamente moído que reage com a água, formando uma pasta que endurece. O concreto resulta da combinação de cimento, água e agregados, como areia e pedra, podendo também conter aditivos. A pasta endurecida une os agregados. No estado fresco, o concreto pode ser moldado; após o início do endurecimento, continua desenvolvendo resistência. Conhecer essa diferença ajuda a distinguir o componente da mistura final ao descrever materiais em consultas, cadastros e solicitações.",
+  "publishedOn": "2026-11-25",
+  "title": "Plano de comunicação: defina o que informar, para quem e quando",
+  "text": "O plano de comunicação organiza a circulação das informações do projeto desde o planejamento. Ele define quais informações serão compartilhadas, quem fará o envio, quem precisa recebê-las, em que momento e por qual canal. Esses elementos ajudam a reduzir ruídos e expectativas divergentes entre os envolvidos. Uma forma simples de aplicar o conceito é registrar cada comunicação prevista com conteúdo, remetente, destinatários, prazo ou frequência e meio de envio. O plano deve permanecer documentado e suas alterações precisam ser registradas.",
   "sources": [
     {
-      "label": "ABESC — Manual do Concreto Dosado em Central (abril de 2007), seção Cimento e Concreto, página 5",
-      "url": "https://abesc.org.br/assets/files/manual-cdc.pdf"
+      "label": "CGU — Metodologia de Gestão de Projetos Estratégicos (2023), seção 2.13",
+      "url": "https://basedeconhecimento.cgu.gov.br/server/api/core/bitstreams/1ff86710-6d5b-421e-b2ff-cd2d51827d02/content"
     }
   ]
 }
