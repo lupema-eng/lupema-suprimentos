@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-25",
-  "title": "Plano de comunicação: defina o que informar, para quem e quando",
-  "text": "O plano de comunicação organiza a circulação das informações do projeto desde o planejamento. Ele define quais informações serão compartilhadas, quem fará o envio, quem precisa recebê-las, em que momento e por qual canal. Esses elementos ajudam a reduzir ruídos e expectativas divergentes entre os envolvidos. Uma forma simples de aplicar o conceito é registrar cada comunicação prevista com conteúdo, remetente, destinatários, prazo ou frequência e meio de envio. O plano deve permanecer documentado e suas alterações precisam ser registradas.",
+  "publishedOn": "2026-11-26",
+  "title": "Estocagem fixa e livre: como organizar a localização dos materiais",
+  "text": "Na estocagem fixa, os tipos de material possuem áreas previamente definidas. Esse modelo facilita o controle, mas pode deixar espaços ociosos quando determinado item está em falta. Na estocagem livre, os materiais ocupam espaços disponíveis, respeitando as necessidades de guarda especial de cada produto. Esse modelo exige controle rigoroso da localização para evitar que um item existente se torne difícil de encontrar. A escolha do sistema precisa considerar a organização do almoxarifado e sua capacidade de controle. Em ambos, saber onde o material está é parte da gestão do estoque.",
   "sources": [
     {
-      "label": "CGU — Metodologia de Gestão de Projetos Estratégicos (2023), seção 2.13",
-      "url": "https://basedeconhecimento.cgu.gov.br/server/api/core/bitstreams/1ff86710-6d5b-421e-b2ff-cd2d51827d02/content"
+      "label": "Fenili, Renato Ribeiro — Gestão de Materiais (Enap, 2015), capítulo 5, seção 3.4, página 137",
+      "url": "https://repositorio.enap.gov.br/server/api/core/bitstreams/57bce870-20c5-42a6-b40e-91fc5dec0b9d/content"
     }
   ]
 }
