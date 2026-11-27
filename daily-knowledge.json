@@ -1,12 +1,12 @@
 {
   "schema": "lupema-daily-knowledge-v1",
-  "publishedOn": "2026-11-26",
-  "title": "Estocagem fixa e livre: como organizar a localização dos materiais",
-  "text": "Na estocagem fixa, os tipos de material possuem áreas previamente definidas. Esse modelo facilita o controle, mas pode deixar espaços ociosos quando determinado item está em falta. Na estocagem livre, os materiais ocupam espaços disponíveis, respeitando as necessidades de guarda especial de cada produto. Esse modelo exige controle rigoroso da localização para evitar que um item existente se torne difícil de encontrar. A escolha do sistema precisa considerar a organização do almoxarifado e sua capacidade de controle. Em ambos, saber onde o material está é parte da gestão do estoque.",
+  "publishedOn": "2026-11-27",
+  "title": "Diagrama de Ishikawa: organize as possíveis causas antes de definir ações",
+  "text": "O diagrama de Ishikawa, também chamado de espinha de peixe, ajuda a organizar possíveis causas de um problema. Primeiro, define-se claramente o problema; depois, a equipe levanta e agrupa os fatores que podem contribuir para ele. Uma classificação conhecida utiliza os 6Ms: método, matéria-prima, mão de obra, máquinas, medição e meio ambiente. As categorias podem ser adaptadas à análise. Após o levantamento, é necessário examinar as causas e o diagrama para definir ações específicas para os fatores identificados. A ferramenta estrutura a investigação e a discussão do problema.",
   "sources": [
     {
-      "label": "Fenili, Renato Ribeiro — Gestão de Materiais (Enap, 2015), capítulo 5, seção 3.4, página 137",
-      "url": "https://repositorio.enap.gov.br/server/api/core/bitstreams/57bce870-20c5-42a6-b40e-91fc5dec0b9d/content"
+      "label": "Ministério da Gestão e da Inovação em Serviços Públicos — Guia de Gestão de Riscos, Anexo V, páginas 47–48",
+      "url": "https://www.gov.br/gestao/pt-br/acesso-a-informacao/estrategia-e-governanca/estrutura-de-governanca/citarc/guia_gr_mgi.pdf"
     }
   ]
 }
